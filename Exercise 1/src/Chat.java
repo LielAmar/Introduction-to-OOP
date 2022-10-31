@@ -3,6 +3,7 @@ import java.util.Scanner;
 public class Chat {
 
     public static void main(String[] args) {
+        // Creating all bots
         ChatterBot[] bots = {
                 new ChatterBot(
                     "Ash",
@@ -33,6 +34,7 @@ public class Chat {
                 )
         };
 
+        // Generating a conversion between the created bots
         Scanner scanner = new Scanner(System.in);
         String statement = scanner.nextLine();
 

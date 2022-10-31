@@ -21,6 +21,13 @@ class ChatterBot {
 	private final String[] repliesToLegalRequest;
 	private final String[] repliesToIllegalRequest;
 
+	/**
+	 * A constructor for ChatterBot
+	 *
+	 * @param name                      Name of the bot
+	 * @param repliesToLegalRequest     Possible replies to Legal requests
+	 * @param repliesToIllegalRequest   Possible replies to Illegal requests
+	 */
 	public ChatterBot(String name, String[] repliesToLegalRequest, String[] repliesToIllegalRequest) {
 		this.name = name;
 		this.repliesToLegalRequest = new String[repliesToLegalRequest.length];
@@ -30,10 +37,19 @@ class ChatterBot {
 		System.arraycopy(repliesToIllegalRequest, 0, this.repliesToIllegalRequest, 0, repliesToIllegalRequest.length);
 	}
 
+	/**
+	 * @return   Bot's name
+	 */
 	public String getName() {
 		return this.name;
 	}
 
+	/**
+	 * Generates a reply from the bot to the given statement
+	 *
+	 * @param statement   Statement to reply to
+	 * @return            Generated reply
+	 */
 	public String replyTo(String statement) {
 		if(statement.startsWith(REQUEST_PREFIX)) {
 			return this.replacePlaceholderInARandomPattern(
@@ -50,6 +66,14 @@ class ChatterBot {
 		);
 	}
 
+	/**
+	 * Creates a reply from the given statement, a placeholder and possible replies
+	 *
+	 * @param statement     Statement to reply to
+	 * @param placeholder   Placeholder to use for the statement
+	 * @param replies       Possible replies
+	 * @return              Generated reply
+	 */
 	private String replacePlaceholderInARandomPattern(String statement, String placeholder, String[] replies) {
 		int randomIndex = this.rand.nextInt(replies.length);
 
