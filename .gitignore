@@ -2,4 +2,7 @@
 *.exe
 *.java
 *.txt
+*.zip
+*.tar
+*.rar
 */.idea/
