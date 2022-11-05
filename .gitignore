@@ -7,3 +7,5 @@
 *.rar
 */.idea/
 README
+*/out/
+*.iml
