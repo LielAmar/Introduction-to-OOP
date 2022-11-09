@@ -51,8 +51,12 @@ public class Board {
      * @return       Whether the placement was successful
      */
     public boolean putMark(Mark mark, int row, int col) {
+        if(this.getMark(row, col) != Mark.BLANK) {
+            return false;
+        }
 
-        return false;
+        this.board[row][col] = mark;
+        return true;
     }
 
     /**
