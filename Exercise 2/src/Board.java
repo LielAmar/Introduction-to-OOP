@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class Board {
 
-    public static final int DEFAULT_BOARD_SIZE = 4;
+    private static final int DEFAULT_BOARD_SIZE = 4;
 
     private final int boardSize;
     private final Mark[][] board;

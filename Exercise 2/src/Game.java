@@ -11,7 +11,14 @@ public class Game {
     private Player currentPlayer;
 
     public Game(Player playerX, Player playerO, Renderer renderer) {
-        this(playerX, playerO, Board.DEFAULT_BOARD_SIZE, DEFAULT_WIN_STREAK, renderer);
+        this.playerX = playerX;
+        this.playerO = playerO;
+        this.renderer = renderer;
+
+        this.winStreak = DEFAULT_WIN_STREAK;
+        this.board = new Board();
+
+        this.currentPlayer = playerX; // Assuming playerX always starts
     }
 
     public Game(Player playerX, Player playerO, int size, int winStreak, Renderer renderer) {
