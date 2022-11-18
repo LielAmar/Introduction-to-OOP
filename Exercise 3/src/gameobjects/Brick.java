@@ -7,6 +7,9 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
 
+/**
+ * A class that represents the brick game object and handles its logic
+ */
 public class Brick extends GameObject {
 
     private final CollisionStrategy strategy;

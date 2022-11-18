@@ -7,6 +7,9 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
 
+/**
+ * A class that represents the graphical life counter game object and handles its logic
+ */
 public class GraphicLifeCounter extends GameObject {
 
     private static final int WIDGET_PADDING = 3;
@@ -39,6 +42,9 @@ public class GraphicLifeCounter extends GameObject {
         this.initiateHearts();
     }
 
+    /**
+     * Initiates the ${numOfLives} heart objects into an array
+     */
     private void initiateHearts() {
         for(int i = 0; i < this.numOfLives; i++) {
             Vector2 heartPosition = new Vector2(
@@ -52,6 +58,13 @@ public class GraphicLifeCounter extends GameObject {
         }
     }
 
+    /**
+     * Handles the update of the graphical life counter.
+     * If the number of lives on screen (${numOfLives}) is not equal to livesCounter,
+     * we want to re-render the amount of lives to match it, and reduce ${numOfLives}
+     *
+     * @param deltaTime   game update delta time
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);

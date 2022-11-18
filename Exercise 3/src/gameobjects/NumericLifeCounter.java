@@ -9,6 +9,9 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 
+/**
+ * A class that represents the numeric life counter game object and handles its logic
+ */
 public class NumericLifeCounter extends GameObject {
 
     private final Counter livesCounter;
@@ -28,6 +31,13 @@ public class NumericLifeCounter extends GameObject {
                 Layer.BACKGROUND);
     }
 
+    /**
+     * Handles the update of the numeric life counter.
+     * We want to constantly update the text to match the lives we have left, as well as change
+     * the color accordingly
+     *
+     * @param deltaTime   game update delta time
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);

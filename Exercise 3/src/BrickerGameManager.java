@@ -11,6 +11,9 @@ import gameobjects.*;
 
 import java.awt.event.KeyEvent;
 
+/**
+ * This class handles the main bricker game logic and creates all necessary objects
+ */
 public class BrickerGameManager extends GameManager {
 
     public static final float BORDER_WIDTH = 20.0f;
@@ -281,6 +284,7 @@ public class BrickerGameManager extends GameManager {
             this.gameObjects().addGameObject(brick);
         }
     }
+
 
     public static void main(String[] args) {
         new BrickerGameManager("Bricker Game", new Vector2(700, 500)).run();
