@@ -7,15 +7,15 @@ import danogl.gui.*;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import gameobjects.Ball;
-import gameobjects.Brick;
-import gameobjects.Paddle;
+import gameobjects.*;
+
+import java.awt.event.KeyEvent;
 
 public class BrickerGameManager extends GameManager {
 
     public static final float BORDER_WIDTH = 20.0f;
 
-    private static final int INITIAL_HEALTH = 3;
+    private static final int INITIAL_LIVES = 3;
     private static final int INITIAL_NUMBER_OF_BRICKS = 56;
 
     private static final String BACKGROUND_IMAGE_PATH = "assets/DARK_BG2_small.jpeg";
@@ -36,8 +36,13 @@ public class BrickerGameManager extends GameManager {
     private static final int BRICK_HEIGHT = 20;
     private static final int BRICK_PADDING = 5;
 
+    private static final String HEART_IMAGE_PATH = "assets/heart.png";
+    private static final int HEART_DIAMETER = 30;
+
     private final Vector2 windowDimensions;
-    private final Counter health;
+    private WindowController windowController;
+    private UserInputListener inputListener;
+    private Counter lives;
     private Counter bricksLeft;
     private GameObject ball;
 
@@ -45,8 +50,6 @@ public class BrickerGameManager extends GameManager {
         super(windowTitle, windowDimensions);
 
         this.windowDimensions = windowDimensions;
-
-        this.health = new Counter(INITIAL_HEALTH);
     }
 
     /**
@@ -63,15 +66,22 @@ public class BrickerGameManager extends GameManager {
         // Initialization
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
 
+        this.windowController = windowController;
+        this.inputListener = inputListener;
+        this.lives = new Counter(INITIAL_LIVES);
+
         // Creating scene
         this.createBackground(imageReader);
+        this.createLivesCounters(imageReader);
+
+        // Creating borders
         this.createBorders();
 
         // Creating ball
         this.createBall(imageReader, soundReader);
 
         // Creating paddle
-        this.createPaddle(imageReader, inputListener);
+        this.createPaddle(imageReader);
 
         // Creating bricks
         this.createBricks(imageReader, INITIAL_NUMBER_OF_BRICKS);
@@ -86,19 +96,24 @@ public class BrickerGameManager extends GameManager {
     public void update(float deltaTime) {
         super.update(deltaTime);
 
-        this.checkHealthStatus();
+        this.checkLivesStatus();
         this.checkGameEnd();
+
+        if(this.inputListener.isKeyPressed(KeyEvent.VK_W)) {
+            this.bricksLeft.reset();
+            this.checkGameEnd();
+        }
     }
+
 
     /**
      * Checks if the player has lost a heart due to the ball falling too much.
      * If they did lose a heart, we restart the ball's position and velocity
      */
-    private void checkHealthStatus() {
+    private void checkLivesStatus() {
         if((this.ball.getCenter().y() + (int)(BALL_DIAMETER/2)) > this.windowDimensions.y()) {
-            this.health.decrement();
+            this.lives.decrement();
             this.restartBall();
-            System.out.println("[DEBUG] Lost a heart. Hearts left: " + this.health.value());
         }
     }
 
@@ -109,20 +124,28 @@ public class BrickerGameManager extends GameManager {
      * @return   Whether the game has ended
      */
     private boolean checkGameEnd() {
+        String promptMessage = "";
         if(this.bricksLeft.value() == 0) {
-            System.out.println("[DEBUG] You have won!");
-            // TODO win scenario
-            return true;
+            promptMessage = "You Won! ";
         }
 
-        if(this.health.value() < 0) {
-            System.out.println("[DEBUG] You have lost the game!");
-            // TODO lose scenario
-            return true;
+        if(this.lives.value() <= 0) {
+            promptMessage = "You Lost! ";
         }
 
-        return false;
+        if(promptMessage.isEmpty()) {
+            return false;
+        }
+
+        if(this.windowController.openYesNoDialog(promptMessage + "Play again?")) {
+            this.windowController.resetGame();
+        } else {
+            this.windowController.closeWindow();
+        }
+
+        return true;
     }
+
 
     /**
      * Creates the game background
@@ -136,6 +159,33 @@ public class BrickerGameManager extends GameManager {
         background.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
 
         this.gameObjects().addGameObject(background, Layer.BACKGROUND);
+    }
+
+    /**
+     * Creates the lives counters
+     */
+    private void createLivesCounters(ImageReader imageReader) {
+        Renderable image = imageReader.readImage(HEART_IMAGE_PATH, true);
+
+        GameObject graphicalLifeCounter = new GraphicLifeCounter(
+                new Vector2(BORDER_WIDTH, this.windowDimensions.y() - BORDER_WIDTH * 2 - HEART_DIAMETER),
+                new Vector2(HEART_DIAMETER, HEART_DIAMETER),
+                this.lives,
+                image,
+                this.gameObjects(),
+                this.lives.value()
+        );
+
+        this.gameObjects().addGameObject(graphicalLifeCounter, Layer.BACKGROUND);
+
+        GameObject numericLifeCounter = new NumericLifeCounter(this.lives,
+                new Vector2(BORDER_WIDTH + HEART_DIAMETER * (INITIAL_LIVES + 1),
+                        this.windowDimensions.y() - BORDER_WIDTH * 2 - HEART_DIAMETER),
+                new Vector2(HEART_DIAMETER, HEART_DIAMETER),
+                this.gameObjects()
+        );
+
+        this.gameObjects().addGameObject(numericLifeCounter, Layer.BACKGROUND);
     }
 
     /**
@@ -187,13 +237,12 @@ public class BrickerGameManager extends GameManager {
      * Creates the game paddle
      *
      * @param imageReader        Image reader
-     * @param inputListener      Listener to user input
      */
-    private void createPaddle(ImageReader imageReader, UserInputListener inputListener) {
+    private void createPaddle(ImageReader imageReader) {
         Renderable image = imageReader.readImage(PADDLE_IMAGE_PATH, false);
 
         GameObject paddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_WIDTH, PADDLE_HEIGHT),
-                image, inputListener, this.windowDimensions, PADDLE_PADDING);
+                image, this.inputListener, this.windowDimensions, PADDLE_PADDING);
         paddle.setCenter(new Vector2(this.windowDimensions.x()/2,
                 this.windowDimensions.y() - PADDLE_PADDING));
 

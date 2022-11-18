@@ -31,7 +31,5 @@ public class Brick extends GameObject {
         super.onCollisionEnter(collider, collision);
 
         this.strategy.onCollision(this, collider, this.counter);
-
-        System.out.println("[DEUBG] bricks left: " + this.counter.value());
     }
 }
