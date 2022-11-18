@@ -1,0 +1,36 @@
+package gameobjects;
+
+import danogl.GameObject;
+import danogl.collisions.Collision;
+import danogl.gui.Sound;
+import danogl.gui.rendering.Renderable;
+import danogl.util.Vector2;
+
+/**
+ * A class that represents the ball game object and handles its logic
+ */
+public class Ball extends GameObject {
+
+    private final Sound collisionSound;
+
+    public Ball(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, Sound collisionSound) {
+        super(topLeftCorner, dimensions, renderable);
+
+        this.collisionSound = collisionSound;
+    }
+
+    /**
+     * Handles ball collision with other objects
+     *
+     * @param collider    Collider object
+     * @param collision   Collision information
+     */
+    @Override
+    public void onCollisionEnter(GameObject collider, Collision collision) {
+        super.onCollisionEnter(collider, collision); // Unnecessary call to super method... >.<
+        this.collisionSound.play();
+
+        Vector2 direction = this.getVelocity().flipped(collision.getNormal());
+        this.setVelocity(direction);
+    }
+}
