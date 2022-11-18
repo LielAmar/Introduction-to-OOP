@@ -13,11 +13,10 @@ import gameobjects.Paddle;
 
 public class BrickerGameManager extends GameManager {
 
-    // TODO remove magic numbers
-
     public static final float BORDER_WIDTH = 20.0f;
 
     private static final int INITIAL_HEALTH = 3;
+    private static final int INITIAL_NUMBER_OF_BRICKS = 56;
 
     private static final String BACKGROUND_IMAGE_PATH = "assets/DARK_BG2_small.jpeg";
 
@@ -27,6 +26,9 @@ public class BrickerGameManager extends GameManager {
     private static final int BALL_DIAMETER = 20;
 
     private static final String PADDLE_IMAGE_PATH = "assets/paddle.png";
+    private static final int PADDLE_WIDTH = 100;
+    private static final int PADDLE_HEIGHT = 20;
+    private static final int PADDLE_PADDING = 20;
 
     private static final String BRICK_IMAGE_PATH = "assets/brick.png";
     private static final int BRICKS_TOP_PADDING = 40;
@@ -72,7 +74,7 @@ public class BrickerGameManager extends GameManager {
         this.createPaddle(imageReader, inputListener);
 
         // Creating bricks
-        this.createBricks(imageReader, 56);
+        this.createBricks(imageReader, INITIAL_NUMBER_OF_BRICKS);
     }
 
     /**
@@ -134,8 +136,6 @@ public class BrickerGameManager extends GameManager {
         background.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
 
         this.gameObjects().addGameObject(background, Layer.BACKGROUND);
-
-
     }
 
     /**
@@ -192,15 +192,22 @@ public class BrickerGameManager extends GameManager {
     private void createPaddle(ImageReader imageReader, UserInputListener inputListener) {
         Renderable image = imageReader.readImage(PADDLE_IMAGE_PATH, false);
 
-        GameObject paddle = new Paddle(Vector2.ZERO, new Vector2(100, 15),
-                image, inputListener, this.windowDimensions, 20);
-        paddle.setCenter(new Vector2(this.windowDimensions.x()/2, this.windowDimensions.y() - 20));
+        GameObject paddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_WIDTH, PADDLE_HEIGHT),
+                image, inputListener, this.windowDimensions, PADDLE_PADDING);
+        paddle.setCenter(new Vector2(this.windowDimensions.x()/2,
+                this.windowDimensions.y() - PADDLE_PADDING));
 
         this.gameObjects().addGameObject(paddle);
     }
 
-    private void createBricks(ImageReader imageReader, int numberOfBreaks) {
-        this.bricksLeft = new Counter(numberOfBreaks);
+    /**
+     * Creates a grid of ${numberOfBricks} bricks
+     *
+     * @param imageReader      Image renderer
+     * @param numberOfBricks   The number of bricks to create
+     */
+    private void createBricks(ImageReader imageReader, int numberOfBricks) {
+        this.bricksLeft = new Counter(numberOfBricks);
 
         Renderable image = imageReader.readImage(BRICK_IMAGE_PATH, false);
 
@@ -211,7 +218,7 @@ public class BrickerGameManager extends GameManager {
 
         Vector2 brickDimensions = new Vector2(brickWidth, BRICK_HEIGHT);
 
-        for(int i = 0; i < numberOfBreaks; i++) {
+        for(int i = 0; i < numberOfBricks; i++) {
             int row = i / BRICKS_PER_ROW;
             int column = i % BRICKS_PER_ROW;
 
