@@ -70,13 +70,15 @@ public class GraphicLifeCounter extends GameObject {
         super.update(deltaTime);
 
         // If we've somehow got here, we have a problem and we just return
-        if(numOfLives < this.livesCounter.value()) {
+        if(numOfLives <= this.livesCounter.value()) {
             return;
         }
 
         // Removing all unnecessary hearts
         while(numOfLives != this.livesCounter.value()) {
-            this.gameObjects.removeGameObject(this.hearts[numOfLives-1]);
+            GameObject gameObject = this.hearts[numOfLives-1];
+            gameObject.setDimensions(Vector2.ZERO);
+            this.gameObjects.removeGameObject(gameObject);
             numOfLives--;
         }
     }
