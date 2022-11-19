@@ -1,5 +1,9 @@
 import java.util.Scanner;
 
+/**
+ * This class represents a clever player that knows how to play tic tac toe
+ */
+
 public class HumanPlayer implements Player {
 
     private final static String ASK_FOR_COORDINATES = "Player %s, type coordinates: ";

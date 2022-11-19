@@ -1,5 +1,9 @@
 import java.util.Arrays;
 
+/**
+ * This class represents a board that can be used for various games.
+ */
+
 public class Board {
 
     private static final int DEFAULT_BOARD_SIZE = 4;
@@ -43,7 +47,6 @@ public class Board {
 
     /**
      * Tries to place the given mark at index (row, col).
-     * TODO: can we assume row & col are fine?
      *
      * @param mark   Mark to place
      * @param row    Index row
@@ -51,6 +54,10 @@ public class Board {
      * @return       Whether the placement was successful
      */
     public boolean putMark(Mark mark, int row, int col) {
+        if(row < 0 || row >= this.getSize() || col < 0 || col >= this.getSize()) {
+            return false;
+        }
+
         if(this.getMark(row, col) != Mark.BLANK) {
             return false;
         }
@@ -67,7 +74,7 @@ public class Board {
      * @return      BLANK mark if illegal arguments, the mark at (row, col) otherwise
      */
     public Mark getMark(int row, int col) {
-        if(row >= this.board.length || col >= this.board[row].length) {
+        if(row < 0 || row >= this.board.length || col < 0 || col >= this.board[row].length) {
             return Mark.BLANK;
         }
 

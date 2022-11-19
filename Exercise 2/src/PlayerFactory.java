@@ -1,7 +1,17 @@
 import java.util.Locale;
 
+/**
+ * A factory for Player type
+ */
+
 public class PlayerFactory {
 
+    /**
+     * Builds a player from the given string
+     *
+     * @param playerName   Name of the player to build
+     * @return             Built player object
+     */
     public Player buildPlayer(String playerName) {
         switch(playerName.toLowerCase(Locale.ENGLISH)) {
             case "human":

@@ -1,3 +1,8 @@
+/**
+ * This class represents a genius player that knows how to play tic tac toe
+ */
+
+
 public class GeniusPlayer implements Player {
 
     @Override

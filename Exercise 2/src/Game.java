@@ -1,3 +1,7 @@
+/**
+ * This class holds the tic tac toe game logic
+ */
+
 public class Game {
 
     private final static int DEFAULT_WIN_STREAK = 3;

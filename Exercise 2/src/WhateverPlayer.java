@@ -1,5 +1,9 @@
 import java.util.Random;
 
+/**
+ * This class represents a normal player that knows how to play tic tac toe
+ */
+
 public class WhateverPlayer implements Player {
 
     private final Random random;

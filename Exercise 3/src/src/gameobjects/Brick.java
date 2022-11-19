@@ -1,6 +1,6 @@
-package gameobjects;
+package src.gameobjects;
 
-import brick_strategies.CollisionStrategy;
+import src.brick_strategies.CollisionStrategy;
 import danogl.GameObject;
 import danogl.collisions.Collision;
 import danogl.gui.rendering.Renderable;

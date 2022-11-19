@@ -1,3 +1,7 @@
+/**
+ * This class represents a Tic Tac Toe tournament
+ */
+
 public class Tournament {
 
     private static final String INVALID_ARGUMENTS = "Please use: Tournament [round count] [size] [win_streak] " +

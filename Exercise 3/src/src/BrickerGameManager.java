@@ -1,4 +1,6 @@
-import brick_strategies.CollisionStrategy;
+package src;
+
+import src.brick_strategies.CollisionStrategy;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
@@ -7,7 +9,7 @@ import danogl.gui.*;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import gameobjects.*;
+import src.gameobjects.*;
 
 import java.awt.event.KeyEvent;
 

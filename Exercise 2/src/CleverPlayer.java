@@ -1,3 +1,7 @@
+/**
+ * This class represents a clever player that knows how to play tic tac toe
+ */
+
 public class CleverPlayer implements Player {
 
     @Override
