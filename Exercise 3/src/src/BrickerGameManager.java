@@ -139,7 +139,7 @@ public class BrickerGameManager extends GameManager {
         for(GameObject gameObject : super.gameObjects()) {
             if(gameObject instanceof Puck) {
                 if(this.isObjectOutsideBorders(gameObject)) {
-                    System.out.println("[DEBUG] removing puck");
+                    // System.out.println("[DEBUG] removing puck");
                     super.gameObjects().removeGameObject(gameObject);
                 }
             }
@@ -154,7 +154,7 @@ public class BrickerGameManager extends GameManager {
             for(GameObject gameObject : super.gameObjects()) {
                 if(gameObject instanceof FinitePaddle) {
                     super.gameObjects().removeGameObject(gameObject);
-                    System.out.println("[DEBUG] removing extra paddle");
+                    // System.out.println("[DEBUG] removing extra paddle");
                 }
             }
         }
@@ -168,7 +168,7 @@ public class BrickerGameManager extends GameManager {
             if(gameObject instanceof Heart) {
                 if(((Heart)gameObject).hasBeenUsed()) {
                     super.gameObjects().removeGameObject(gameObject);
-                    System.out.println("[DEBUG] removing heart");
+                    // System.out.println("[DEBUG] removing heart");
                 }
             }
         }

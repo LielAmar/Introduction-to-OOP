@@ -27,7 +27,7 @@ public class CollisionStrategy {
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         if(this.gameObjects.removeGameObject(collidedObject)) {
             bricksCounter.decrement();
-            System.out.println("[DEBUG] decremented bricks counter to " + bricksCounter.value());
+            // System.out.println("[DEBUG] decremented bricks counter to " + bricksCounter.value());
         }
     }
 }

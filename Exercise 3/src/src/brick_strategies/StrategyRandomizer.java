@@ -68,24 +68,50 @@ public class StrategyRandomizer {
         this.lives = lives;
     }
 
+    /**
+     * Randomly selects a strategy out of all strategies
+     *
+     * @return   A new instance of the randomly chosen strategy
+     */
     public CollisionStrategy getRandomStrategy() {
         int index = this.random.nextInt(6);
 
+        if(index == 0) {
+            return defaultCollisionStrategy();
+        }
+
+        return getRandomSpecialStrategy();
+    }
+
+    /**
+     * Randomly selects a strategy out of the special ones (no CollisionStrategy)
+     *
+     * @return   A new instance of the randomly chosen strategy
+     */
+    public CollisionStrategy getRandomSpecialStrategy() {
+        int index = this.random.nextInt(5);
+
         switch (index) {
-            case 0: return defaultCollisionStrategy();
-            case 1: return cameraChangeStrategy();
+            case 0: return cameraChangeStrategy();
+            case 1: return doublePowerupStrategy();
             case 2: return extraLifeStrategy();
             case 3: return extraPaddleStrategy();
             case 4: return extraPucksStrategy();
-            case 5: return defaultCollisionStrategy(); // TODO changeme
-            default: return defaultCollisionStrategy();
         }
+
+        return null;
     }
 
+    /**
+     * @return Creates a default Collision Strategy
+     */
     private CollisionStrategy defaultCollisionStrategy() {
         return new CollisionStrategy(this.gameObjects);
     }
 
+    /**
+     * @return Creates a camera change Collision Strategy
+     */
     private CollisionStrategy cameraChangeStrategy() {
         return new CameraChangeStrategy(this.gameObjects,
                 this.gameManager,
@@ -93,14 +119,20 @@ public class StrategyRandomizer {
                 this.windowController);
     }
 
-    public CollisionStrategy extraLifeStrategy() {
+    /**
+     * @return Creates an extra life Collision Strategy
+     */
+    private CollisionStrategy extraLifeStrategy() {
         return new ExtraLifeStrategy(this.gameObjects,
                 this.heartRenderable,
                 this.heartSize,
                 this.lives);
     }
 
-    public CollisionStrategy extraPaddleStrategy() {
+    /**
+     * @return Creates an extra paddle Collision Strategy
+     */
+    private CollisionStrategy extraPaddleStrategy() {
         return new ExtraPaddleStrategy(this.gameObjects,
                 this.extraPaddleSize,
                 this.extraPaddleRenderable,
@@ -110,9 +142,19 @@ public class StrategyRandomizer {
                 this.extraPaddleLives);
     }
 
-    public CollisionStrategy extraPucksStrategy() {
+    /**
+     * @return Creates an extra pucks Collision Strategy
+     */
+    private CollisionStrategy extraPucksStrategy() {
         return new ExtraPucksStrategy(this.gameObjects,
                 this.puckRenderable,
                 this.puckSound);
+    }
+
+    /**
+     * @return Creates a double powerup Collision Strategy
+     */
+    private CollisionStrategy doublePowerupStrategy() {
+        return new DoublePowerupStrategy(this.gameObjects, this);
     }
 }
