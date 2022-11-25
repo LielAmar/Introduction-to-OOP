@@ -53,6 +53,6 @@ public class Paddle extends GameObject {
             }
         }
 
-        this.setVelocity(direction.mult(MOVE_SPEED));
+        super.setVelocity(direction.mult(MOVE_SPEED));
     }
 }

@@ -7,6 +7,8 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
 
+import java.util.Stack;
+
 /**
  * A class that represents the graphical life counter game object and handles its logic
  */
@@ -22,7 +24,7 @@ public class GraphicLifeCounter extends GameObject {
     private final Counter livesCounter;
     private int numOfLives;
 
-    private final GameObject[] hearts;
+    private final Stack<GameObject> hearts;
 
     public GraphicLifeCounter(Vector2 widgetTopLeftCorner, Vector2 widgetDimensions, Counter livesCounter,
                        Renderable widgetRenderable, GameObjectCollection gameObjectsCollection,
@@ -37,7 +39,7 @@ public class GraphicLifeCounter extends GameObject {
         this.livesCounter = livesCounter;
         this.numOfLives = numOfLives;
 
-        this.hearts = new GameObject[this.numOfLives];
+        this.hearts = new Stack<>();
 
         this.initiateHearts();
     }
@@ -51,10 +53,11 @@ public class GraphicLifeCounter extends GameObject {
                     this.widgetTopLeftCorner.x() + i*(this.widgetDimensions.x() + WIDGET_PADDING),
                     this.widgetTopLeftCorner.y());
 
-            this.hearts[i] = new GameObject(heartPosition, this.widgetDimensions,
+            GameObject heart = new Heart(heartPosition, this.widgetDimensions,
                     this.widgetRenderable);
 
-            this.gameObjects.addGameObject(this.hearts[i], Layer.BACKGROUND);
+            this.hearts.add(heart);
+            this.gameObjects.addGameObject(heart, Layer.BACKGROUND);
         }
     }
 
@@ -76,7 +79,7 @@ public class GraphicLifeCounter extends GameObject {
 
         // Removing all unnecessary hearts
         while(numOfLives != this.livesCounter.value()) {
-            GameObject gameObject = this.hearts[numOfLives-1];
+            GameObject gameObject = this.hearts.pop();
             gameObject.setDimensions(Vector2.ZERO);
             this.gameObjects.removeGameObject(gameObject);
             numOfLives--;

@@ -44,12 +44,12 @@ public class NumericLifeCounter extends GameObject {
 
         this.textObject.setString(this.livesCounter.value() + "");
 
-        if(this.livesCounter.value() == 3) {
-            this.textObject.setColor(Color.green);
+        if(this.livesCounter.value() == 1) {
+            this.textObject.setColor(Color.red);
         } else if(this.livesCounter.value() == 2) {
             this.textObject.setColor(Color.yellow);
-        } else if(this.livesCounter.value() == 1) {
-            this.textObject.setColor(Color.red);
+        } else {
+            this.textObject.setColor(Color.green);
         }
     }
 }

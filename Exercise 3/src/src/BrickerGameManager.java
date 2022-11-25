@@ -1,6 +1,5 @@
 package src;
 
-import src.brick_strategies.CollisionStrategy;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
@@ -9,6 +8,7 @@ import danogl.gui.*;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
+import src.brick_strategies.ExtraPaddleStrategy;
 import src.gameobjects.*;
 
 import java.awt.event.KeyEvent;
@@ -31,24 +31,29 @@ public class BrickerGameManager extends GameManager {
     private static final int BALL_DIAMETER = 20;
 
     private static final String PADDLE_IMAGE_PATH = "assets/paddle.png";
-    private static final int PADDLE_WIDTH = 100;
-    private static final int PADDLE_HEIGHT = 20;
+    private static final Vector2 PADDLE_SIZE = new Vector2(100, 20);
     private static final int PADDLE_PADDING = 20;
 
     private static final String BRICK_IMAGE_PATH = "assets/brick.png";
     private static final int BRICKS_TOP_PADDING = 40;
     private static final int BRICKS_PER_ROW = 7;
-    private static final int BRICK_HEIGHT = 20;
-    private static final int BRICK_PADDING = 5;
+    private static final int BRICK_HEIGHT = 15;
+    private static final int BRICK_PADDING = 2;
 
     private static final String HEART_IMAGE_PATH = "assets/heart.png";
     private static final int HEART_DIAMETER = 30;
+
+    private static final String PUCK_IMAGE_PATH = "assets/mockBall.png";
+    private static final String PUCK_SOUND_PATH = "assets/Bubble5_4.wav";
+
+    private static final String EXTRA_PADDLE_IMAGE_PATH = "assets/botGood.png";
 
     private final Vector2 windowDimensions;
     private WindowController windowController;
     private UserInputListener inputListener;
     private Counter lives;
     private Counter bricksLeft;
+    private Counter extraPaddleLife;
     private GameObject ball;
 
     public BrickerGameManager(String windowTitle, Vector2 windowDimensions) {
@@ -74,6 +79,7 @@ public class BrickerGameManager extends GameManager {
         this.windowController = windowController;
         this.inputListener = inputListener;
         this.lives = new Counter(INITIAL_LIVES);
+        this.extraPaddleLife = new Counter(0);
 
         // Creating scene
         this.createBackground(imageReader);
@@ -89,7 +95,7 @@ public class BrickerGameManager extends GameManager {
         this.createPaddle(imageReader);
 
         // Creating bricks
-        this.createBricks(imageReader, INITIAL_NUMBER_OF_BRICKS);
+        this.createBricks(imageReader, soundReader);
     }
 
     /**
@@ -100,6 +106,9 @@ public class BrickerGameManager extends GameManager {
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
+
+        this.checkPucks();
+        this.checkExtraPaddle();
 
         this.checkLivesStatus();
         this.checkGameEnd();
@@ -112,11 +121,37 @@ public class BrickerGameManager extends GameManager {
 
 
     /**
+     * Loops over all pucks and if a puck is outside the game's borders, it removes it from the
+     * gameObjects list.
+     */
+    private void checkPucks() {
+        for(GameObject gameObject : super.gameObjects()) {
+            if(gameObject instanceof Puck) {
+                if(this.isObjectOutsideBorders(gameObject)) {
+                    System.out.println("[DEBUG] removing puck");
+                    super.gameObjects().removeGameObject(gameObject);
+                }
+            }
+        }
+    }
+
+    private void checkExtraPaddle() {
+        if(this.extraPaddleLife.value() == 0) {
+            for(GameObject gameObject : super.gameObjects()) {
+                if(gameObject instanceof FinitePaddle) {
+                    super.gameObjects().removeGameObject(gameObject);
+                    System.out.println("[DEBUG] removing extra paddle");
+                }
+            }
+        }
+    }
+
+    /**
      * Checks if the player has lost a heart due to the ball falling too much.
      * If they did lose a heart, we restart the ball's position and velocity
      */
     private void checkLivesStatus() {
-        if((this.ball.getCenter().y() + (int)(BALL_DIAMETER/2)) > this.windowDimensions.y()) {
+        if(this.isObjectOutsideBorders(this.ball)) {
             this.lives.decrement();
             this.restartBall();
         }
@@ -125,10 +160,8 @@ public class BrickerGameManager extends GameManager {
     /**
      * Checks if the game has ended due to the player breaking all bricks, or dying more than
      * the allowed times
-     *
-     * @return   Whether the game has ended
      */
-    private boolean checkGameEnd() {
+    private void checkGameEnd() {
         String promptMessage = "";
         if(this.bricksLeft.value() == 0) {
             promptMessage = "You Won! ";
@@ -139,7 +172,7 @@ public class BrickerGameManager extends GameManager {
         }
 
         if(promptMessage.isEmpty()) {
-            return false;
+            return;
         }
 
         if(this.windowController.openYesNoDialog(promptMessage + "Play again?")) {
@@ -147,8 +180,17 @@ public class BrickerGameManager extends GameManager {
         } else {
             this.windowController.closeWindow();
         }
+    }
 
-        return true;
+    /**
+     * Checks whether the given game object is within the game borders
+     *
+     * @param gameObject   Game object to check
+     * @return             Whether the given object is within the game borders
+     */
+    private boolean isObjectOutsideBorders(GameObject gameObject) {
+        return (gameObject.getCenter().y() + (int) (gameObject.getDimensions().y() / 2))
+                > this.windowDimensions.y();
     }
 
 
@@ -209,6 +251,7 @@ public class BrickerGameManager extends GameManager {
         );
 
         // Top Border
+        // noinspection SuspiciousNameCombination
         this.gameObjects().addGameObject(
                 new GameObject(Vector2.ZERO, new Vector2(windowDimensions.x(), BORDER_WIDTH), null)
         );
@@ -246,7 +289,7 @@ public class BrickerGameManager extends GameManager {
     private void createPaddle(ImageReader imageReader) {
         Renderable image = imageReader.readImage(PADDLE_IMAGE_PATH, false);
 
-        GameObject paddle = new Paddle(Vector2.ZERO, new Vector2(PADDLE_WIDTH, PADDLE_HEIGHT),
+        GameObject paddle = new Paddle(Vector2.ZERO, PADDLE_SIZE,
                 image, this.inputListener, this.windowDimensions, PADDLE_PADDING);
         paddle.setCenter(new Vector2(this.windowDimensions.x()/2,
                 this.windowDimensions.y() - PADDLE_PADDING));
@@ -257,13 +300,19 @@ public class BrickerGameManager extends GameManager {
     /**
      * Creates a grid of ${numberOfBricks} bricks
      *
-     * @param imageReader      Image renderer
-     * @param numberOfBricks   The number of bricks to create
+     * @param imageReader Image renderer
      */
-    private void createBricks(ImageReader imageReader, int numberOfBricks) {
-        this.bricksLeft = new Counter(numberOfBricks);
+    private void createBricks(ImageReader imageReader, SoundReader soundReader) {
+        this.bricksLeft = new Counter(BrickerGameManager.INITIAL_NUMBER_OF_BRICKS);
 
         Renderable image = imageReader.readImage(BRICK_IMAGE_PATH, false);
+
+        // === todo remove this ===
+        Renderable puckImage = imageReader.readImage(PUCK_IMAGE_PATH, true);
+        Sound sound = soundReader.readSound(PUCK_SOUND_PATH);
+        Renderable extraPaddleImage = imageReader.readImage(EXTRA_PADDLE_IMAGE_PATH, true);
+
+        // === ================ ===
 
         // Calculating the length of a single brick with this formula:
         // (Width - left_border - right_border - padding_between_every_brick) / number_of_bricks
@@ -272,16 +321,28 @@ public class BrickerGameManager extends GameManager {
 
         Vector2 brickDimensions = new Vector2(brickWidth, BRICK_HEIGHT);
 
-        for(int i = 0; i < numberOfBricks; i++) {
+        for(int i = 0; i < BrickerGameManager.INITIAL_NUMBER_OF_BRICKS; i++) {
             int row = i / BRICKS_PER_ROW;
             int column = i % BRICKS_PER_ROW;
 
             int currentBrickXPos = (int) (BORDER_WIDTH + (column * (brickWidth + BRICK_PADDING)));
-            int currentBrickYPos = (int) (BRICKS_TOP_PADDING + (row * (BRICK_HEIGHT + BRICK_PADDING)));
+            int currentBrickYPos = (BRICKS_TOP_PADDING + (row * (BRICK_HEIGHT + BRICK_PADDING)));
 
             Vector2 brickPosition = new Vector2(currentBrickXPos, currentBrickYPos);
-            GameObject brick = new Brick(brickPosition, brickDimensions, image,
-                    new CollisionStrategy(this.gameObjects()), bricksLeft);
+
+            GameObject brick;
+
+//            if(i % 6 == 0) {
+                brick = new Brick(brickPosition, brickDimensions, image,
+                        new ExtraPaddleStrategy(this.gameObjects(), PADDLE_SIZE, extraPaddleImage,
+                                this.inputListener, this.windowDimensions, PADDLE_PADDING,
+                                this.extraPaddleLife),
+                        bricksLeft);
+//            } else {
+//                brick = new Brick(brickPosition, brickDimensions, image,
+//                        new CollisionStrategy(this.gameObjects()),
+//                        bricksLeft);
+//            }
 
             this.gameObjects().addGameObject(brick);
         }

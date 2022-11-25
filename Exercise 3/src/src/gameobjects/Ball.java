@@ -31,6 +31,6 @@ public class Ball extends GameObject {
         this.collisionSound.play();
 
         Vector2 direction = this.getVelocity().flipped(collision.getNormal());
-        this.setVelocity(direction);
+        super.setVelocity(direction);
     }
 }
