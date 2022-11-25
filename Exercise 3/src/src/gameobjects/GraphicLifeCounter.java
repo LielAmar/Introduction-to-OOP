@@ -49,15 +49,7 @@ public class GraphicLifeCounter extends GameObject {
      */
     private void initiateHearts() {
         for(int i = 0; i < this.numOfLives; i++) {
-            Vector2 heartPosition = new Vector2(
-                    this.widgetTopLeftCorner.x() + i*(this.widgetDimensions.x() + WIDGET_PADDING),
-                    this.widgetTopLeftCorner.y());
-
-            GameObject heart = new Heart(heartPosition, this.widgetDimensions,
-                    this.widgetRenderable);
-
-            this.hearts.add(heart);
-            this.gameObjects.addGameObject(heart, Layer.BACKGROUND);
+            this.createHeart(i);
         }
     }
 
@@ -72,17 +64,37 @@ public class GraphicLifeCounter extends GameObject {
     public void update(float deltaTime) {
         super.update(deltaTime);
 
-        // If we've somehow got here, we have a problem and we just return
-        if(numOfLives <= this.livesCounter.value()) {
-            return;
-        }
-
         // Removing all unnecessary hearts
-        while(numOfLives != this.livesCounter.value()) {
+        while(numOfLives > this.livesCounter.value()) {
             GameObject gameObject = this.hearts.pop();
             gameObject.setDimensions(Vector2.ZERO);
             this.gameObjects.removeGameObject(gameObject);
+
             numOfLives--;
         }
+
+        // Adding all missing hearts
+        while(numOfLives < this.livesCounter.value()) {
+            this.createHeart(this.livesCounter.value() - 1);
+
+            numOfLives++;
+        }
+    }
+
+    /**
+     * Creates a new heart to symbol the number of hearts the player has left.
+     *
+     * @param heartId   id of the heart to align
+     */
+    private void createHeart(int heartId) {
+        Vector2 heartPosition = new Vector2(
+                this.widgetTopLeftCorner.x() + heartId * (this.widgetDimensions.x() + WIDGET_PADDING),
+                this.widgetTopLeftCorner.y());
+
+        GameObject heart = new Heart(heartPosition, this.widgetDimensions,
+                this.widgetRenderable);
+
+        this.hearts.add(heart);
+        this.gameObjects.addGameObject(heart, Layer.BACKGROUND);
     }
 }

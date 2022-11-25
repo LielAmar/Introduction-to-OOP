@@ -9,6 +9,9 @@ import danogl.util.Vector2;
 
 import java.awt.event.KeyEvent;
 
+/**
+ * A class that represents a paddle with a finite amount of uses
+ */
 public class FinitePaddle extends Paddle {
 
     private final Counter paddleLifeCounter;
@@ -21,12 +24,23 @@ public class FinitePaddle extends Paddle {
         this.paddleLifeCounter = paddleLifeCounter;
     }
 
-    // TODO: make the same with HEART class in the future (only collide with paddle [but not extra paddle])
+    /**
+     * Specifies all objects that should collide with a finite paddle
+     *
+     * @param other   The other GameObject
+     * @return        Whether a collision should occur
+     */
     @Override
     public boolean shouldCollideWith(GameObject other) {
         return super.shouldCollideWith(other) && other instanceof Ball;
     }
 
+    /**
+     * Handles the event of a collision with the extra paddle
+     *
+     * @param other       The GameObject with which a collision occurred
+     * @param collision   Information regarding this collision.
+     */
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);

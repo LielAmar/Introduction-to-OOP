@@ -8,6 +8,9 @@ import danogl.util.Vector2;
 
 import java.util.Random;
 
+/**
+ * A class that represents a puck - a ball with an initial velocity of a diagonal direction
+ */
 public class Puck extends Ball {
 
     private final static int PUCK_INITIAL_VELOCITY = 200;
@@ -28,6 +31,12 @@ public class Puck extends Ball {
         ));
     }
 
+    /**
+     * Handles the collision event with a puck
+     *
+     * @param collider    Collider object
+     * @param collision   Collision information
+     */
     @Override
     public void onCollisionEnter(GameObject collider, Collision collision) {
         super.onCollisionEnter(collider, collision);

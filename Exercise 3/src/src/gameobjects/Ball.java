@@ -5,11 +5,12 @@ import danogl.collisions.Collision;
 import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import src.utils.TrackedGameObject;
 
 /**
  * A class that represents the ball game object and handles its logic
  */
-public class Ball extends GameObject {
+public class Ball extends TrackedGameObject {
 
     private final Sound collisionSound;
 
@@ -28,7 +29,9 @@ public class Ball extends GameObject {
     @Override
     public void onCollisionEnter(GameObject collider, Collision collision) {
         super.onCollisionEnter(collider, collision); // Unnecessary call to super method... >.<
+
         this.collisionSound.play();
+        super.setTrackerValue(super.getTrackerValue() + 1);
 
         Vector2 direction = this.getVelocity().flipped(collision.getNormal());
         super.setVelocity(direction);

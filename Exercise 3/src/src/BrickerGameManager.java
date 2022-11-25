@@ -8,8 +8,10 @@ import danogl.gui.*;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.brick_strategies.ExtraPaddleStrategy;
+import src.brick_strategies.*;
 import src.gameobjects.*;
+import src.utils.BoundedCounter;
+import src.utils.TrackedGameObject;
 
 import java.awt.event.KeyEvent;
 
@@ -21,6 +23,7 @@ public class BrickerGameManager extends GameManager {
     public static final float BORDER_WIDTH = 20.0f;
 
     private static final int INITIAL_LIVES = 3;
+    private static final int LIVES_UPPER_BOUND = 4;
     private static final int INITIAL_NUMBER_OF_BRICKS = 56;
 
     private static final String BACKGROUND_IMAGE_PATH = "assets/DARK_BG2_small.jpeg";
@@ -48,13 +51,17 @@ public class BrickerGameManager extends GameManager {
 
     private static final String EXTRA_PADDLE_IMAGE_PATH = "assets/botGood.png";
 
+    private static final int MAX_HITS_PER_CAMERA_CHANGE = 4;
+
     private final Vector2 windowDimensions;
     private WindowController windowController;
     private UserInputListener inputListener;
     private Counter lives;
+    private Counter extraPaddleLives;
     private Counter bricksLeft;
-    private Counter extraPaddleLife;
-    private GameObject ball;
+    private TrackedGameObject ball;
+
+    private StrategyRandomizer strategyRandomizer;
 
     public BrickerGameManager(String windowTitle, Vector2 windowDimensions) {
         super(windowTitle, windowDimensions);
@@ -78,8 +85,8 @@ public class BrickerGameManager extends GameManager {
 
         this.windowController = windowController;
         this.inputListener = inputListener;
-        this.lives = new Counter(INITIAL_LIVES);
-        this.extraPaddleLife = new Counter(0);
+        this.lives = new BoundedCounter(INITIAL_LIVES, LIVES_UPPER_BOUND); // Upper bounded
+        this.extraPaddleLives = new Counter(0);
 
         // Creating scene
         this.createBackground(imageReader);
@@ -94,8 +101,10 @@ public class BrickerGameManager extends GameManager {
         // Creating paddle
         this.createPaddle(imageReader);
 
+        this.createStrategyRandomizer(imageReader, soundReader);
+
         // Creating bricks
-        this.createBricks(imageReader, soundReader);
+        this.createBricks(imageReader);
     }
 
     /**
@@ -109,6 +118,8 @@ public class BrickerGameManager extends GameManager {
 
         this.checkPucks();
         this.checkExtraPaddle();
+        this.checkHearts();
+        this.checkCameraStatus();
 
         this.checkLivesStatus();
         this.checkGameEnd();
@@ -135,13 +146,42 @@ public class BrickerGameManager extends GameManager {
         }
     }
 
+    /**
+     * If our extra paddle life is 0, we want to loop over all finite paddles and remove them.
+     */
     private void checkExtraPaddle() {
-        if(this.extraPaddleLife.value() == 0) {
+        if(this.extraPaddleLives.value() == 0) {
             for(GameObject gameObject : super.gameObjects()) {
                 if(gameObject instanceof FinitePaddle) {
                     super.gameObjects().removeGameObject(gameObject);
                     System.out.println("[DEBUG] removing extra paddle");
                 }
+            }
+        }
+    }
+
+    /**
+     * Loops over all hearts and if a heart has been used we remove it.
+     */
+    private void checkHearts() {
+        for(GameObject gameObject : super.gameObjects()) {
+            if(gameObject instanceof Heart) {
+                if(((Heart)gameObject).hasBeenUsed()) {
+                    super.gameObjects().removeGameObject(gameObject);
+                    System.out.println("[DEBUG] removing heart");
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if the current camera needs to be removed - if we have a camera and the ball collided
+     * more than MAX_HITS_PER_CAMERA_CHANGE times
+     */
+    private void checkCameraStatus() {
+        if(super.getCamera() != null) {
+            if(this.ball.getTrackerValue() >= MAX_HITS_PER_CAMERA_CHANGE) {
+                super.setCamera(null);
             }
         }
     }
@@ -153,7 +193,7 @@ public class BrickerGameManager extends GameManager {
     private void checkLivesStatus() {
         if(this.isObjectOutsideBorders(this.ball)) {
             this.lives.decrement();
-            this.restartBall();
+            this.restartBallPosition();
         }
     }
 
@@ -225,8 +265,9 @@ public class BrickerGameManager extends GameManager {
 
         this.gameObjects().addGameObject(graphicalLifeCounter, Layer.BACKGROUND);
 
-        GameObject numericLifeCounter = new NumericLifeCounter(this.lives,
-                new Vector2(BORDER_WIDTH + HEART_DIAMETER * (INITIAL_LIVES + 1),
+        GameObject numericLifeCounter = new NumericLifeCounter(
+                this.lives,
+                new Vector2(BORDER_WIDTH + HEART_DIAMETER * (LIVES_UPPER_BOUND + 1),
                         this.windowDimensions.y() - BORDER_WIDTH * 2 - HEART_DIAMETER),
                 new Vector2(HEART_DIAMETER, HEART_DIAMETER),
                 this.gameObjects()
@@ -267,8 +308,14 @@ public class BrickerGameManager extends GameManager {
         Renderable image = imageReader.readImage(BALL_IMAGE_PATH, true);
         Sound sound = soundReader.readSound(BALL_SOUND_PATH);
 
-        this.ball = new Ball(Vector2.ZERO, new Vector2(BALL_DIAMETER, BALL_DIAMETER), image,sound);
-        this.restartBall();
+        this.ball = new Ball(
+                Vector2.ZERO,
+                new Vector2(BALL_DIAMETER, BALL_DIAMETER),
+                image,
+                sound
+        );
+
+        this.restartBallPosition();
 
         this.gameObjects().addGameObject(this.ball);
     }
@@ -276,7 +323,7 @@ public class BrickerGameManager extends GameManager {
     /**
      * Sets the state of the ball (center & velocity) to their initial values
      */
-    private void restartBall() {
+    private void restartBallPosition() {
         this.ball.setCenter(this.windowDimensions.mult(0.5f));
         this.ball.setVelocity(new Vector2(0, BALL_INITIAL_SPEED));
     }
@@ -298,21 +345,51 @@ public class BrickerGameManager extends GameManager {
     }
 
     /**
+     * After creating all other objects but bricks, we create brick strategies that would be using
+     * all other objects to have powerup functionality.
+     */
+    private void createStrategyRandomizer(ImageReader imageReader, SoundReader soundReader) {
+        Renderable puckImage = imageReader.readImage(PUCK_IMAGE_PATH, true);
+        Sound puckSound = soundReader.readSound(PUCK_SOUND_PATH);
+
+        Renderable extraPaddle = imageReader.readImage(EXTRA_PADDLE_IMAGE_PATH, false);
+
+        Renderable extraHeartImage = imageReader.readImage(HEART_IMAGE_PATH, true);
+
+        Vector2 heartSize = new Vector2(HEART_DIAMETER, HEART_DIAMETER);
+
+        this.strategyRandomizer = new StrategyRandomizer(
+                super.gameObjects(),
+                this,
+                this.inputListener,
+                this.windowController,
+
+                this.ball,
+
+                extraPaddle,
+                PADDLE_SIZE,
+                this.windowDimensions,
+                PADDLE_PADDING,
+                this.extraPaddleLives,
+
+                puckImage,
+                puckSound,
+
+                extraHeartImage,
+                heartSize,
+                this.lives
+        );
+    }
+
+    /**
      * Creates a grid of ${numberOfBricks} bricks
      *
      * @param imageReader Image renderer
      */
-    private void createBricks(ImageReader imageReader, SoundReader soundReader) {
+    private void createBricks(ImageReader imageReader) {
         this.bricksLeft = new Counter(BrickerGameManager.INITIAL_NUMBER_OF_BRICKS);
 
         Renderable image = imageReader.readImage(BRICK_IMAGE_PATH, false);
-
-        // === todo remove this ===
-        Renderable puckImage = imageReader.readImage(PUCK_IMAGE_PATH, true);
-        Sound sound = soundReader.readSound(PUCK_SOUND_PATH);
-        Renderable extraPaddleImage = imageReader.readImage(EXTRA_PADDLE_IMAGE_PATH, true);
-
-        // === ================ ===
 
         // Calculating the length of a single brick with this formula:
         // (Width - left_border - right_border - padding_between_every_brick) / number_of_bricks
@@ -332,17 +409,9 @@ public class BrickerGameManager extends GameManager {
 
             GameObject brick;
 
-//            if(i % 6 == 0) {
-                brick = new Brick(brickPosition, brickDimensions, image,
-                        new ExtraPaddleStrategy(this.gameObjects(), PADDLE_SIZE, extraPaddleImage,
-                                this.inputListener, this.windowDimensions, PADDLE_PADDING,
-                                this.extraPaddleLife),
+            brick = new Brick(brickPosition, brickDimensions, image,
+                    this.strategyRandomizer.getRandomStrategy(),
                         bricksLeft);
-//            } else {
-//                brick = new Brick(brickPosition, brickDimensions, image,
-//                        new CollisionStrategy(this.gameObjects()),
-//                        bricksLeft);
-//            }
 
             this.gameObjects().addGameObject(brick);
         }

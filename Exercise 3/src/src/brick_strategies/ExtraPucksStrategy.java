@@ -22,7 +22,6 @@ public class ExtraPucksStrategy extends CollisionStrategy {
         this.sound = sound;
     }
 
-
     @Override
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         super.onCollision(collidedObject, colliderObject, bricksCounter);
@@ -31,7 +30,8 @@ public class ExtraPucksStrategy extends CollisionStrategy {
         float puckDiameter = collidedObject.getDimensions().x() / 3;
 
         for(int i = 0; i < PUCKS_TO_ADD; i++) {
-            GameObject puck = new Puck(collidedObject.getTopLeftCorner(),
+            GameObject puck = new Puck(
+                    collidedObject.getTopLeftCorner(),
                     new Vector2(puckDiameter, puckDiameter),
                     renderable,
                     sound);

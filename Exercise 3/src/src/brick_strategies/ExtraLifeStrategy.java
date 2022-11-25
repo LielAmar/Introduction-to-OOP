@@ -14,15 +14,15 @@ public class ExtraLifeStrategy extends CollisionStrategy {
     private static final Vector2 INITIAL_HEART_VELOCITY = new Vector2(0, 100);
 
     private final Renderable renderable;
-    private final Vector2 heartSize;
+    private final Vector2 objectSize;
     private final Counter lifeCounter;
 
     public ExtraLifeStrategy(GameObjectCollection gameObjects, Renderable renderable,
-                             Vector2 heartSize, Counter lifeCounter) {
+                             Vector2 objectSize, Counter lifeCounter) {
         super(gameObjects);
 
         this.renderable = renderable;
-        this.heartSize = heartSize;
+        this.objectSize = objectSize;
         this.lifeCounter = lifeCounter;
     }
 
@@ -31,8 +31,11 @@ public class ExtraLifeStrategy extends CollisionStrategy {
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         super.onCollision(collidedObject, colliderObject, bricksCounter);
 
-        GameObject heart = new Heart(collidedObject.getTopLeftCorner(), this.heartSize,
-                this.renderable, INITIAL_HEART_VELOCITY, lifeCounter);
+        GameObject heart = new Heart(collidedObject.getTopLeftCorner(),
+                this.objectSize,
+                this.renderable,
+                INITIAL_HEART_VELOCITY,
+                lifeCounter);
 
         heart.setCenter(collidedObject.getCenter());
 
