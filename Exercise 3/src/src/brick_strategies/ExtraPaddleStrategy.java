@@ -8,6 +8,9 @@ import danogl.util.Counter;
 import danogl.util.Vector2;
 import src.gameobjects.FinitePaddle;
 
+/**
+ * This class handles the strategy that adds an extra paddle
+ */
 public class ExtraPaddleStrategy extends CollisionStrategy {
 
     private static final int EXTRA_PADDLE_INITIAL_LIFE = 3;
@@ -32,7 +35,13 @@ public class ExtraPaddleStrategy extends CollisionStrategy {
         this.extraPaddleLife = extraPaddleLife;
     }
 
-
+    /**
+     * Handles the collision with a brick that has an extra paddle strategy
+     *
+     * @param collidedObject   Brick that collided
+     * @param colliderObject   Ball
+     * @param bricksCounter    Counter of bricks left
+     */
     @Override
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         super.onCollision(collidedObject, colliderObject, bricksCounter);

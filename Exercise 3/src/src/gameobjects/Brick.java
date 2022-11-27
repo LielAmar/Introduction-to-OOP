@@ -12,14 +12,19 @@ import danogl.util.Vector2;
  */
 public class Brick extends GameObject {
 
-    private final CollisionStrategy strategy;
+    private final CollisionStrategy[] strategies;
     private final Counter counter;
 
     public Brick(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable,
                  CollisionStrategy strategy, Counter counter) {
+        this(topLeftCorner, dimensions, renderable, new CollisionStrategy[] { strategy }, counter);
+    }
+
+    public Brick(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable,
+                 CollisionStrategy[] strategies, Counter counter) {
         super(topLeftCorner, dimensions, renderable);
 
-        this.strategy = strategy;
+        this.strategies = strategies;
         this.counter = counter;
     }
 
@@ -33,6 +38,8 @@ public class Brick extends GameObject {
     public void onCollisionEnter(GameObject collider, Collision collision) {
         super.onCollisionEnter(collider, collision);
 
-        this.strategy.onCollision(this, collider, this.counter);
+        for(CollisionStrategy strategy : this.strategies) {
+            strategy.onCollision(this, collider, this.counter);
+        }
     }
 }

@@ -166,7 +166,7 @@ public class BrickerGameManager extends GameManager {
     private void checkHearts() {
         for(GameObject gameObject : super.gameObjects()) {
             if(gameObject instanceof Heart) {
-                if(((Heart)gameObject).hasBeenUsed()) {
+                if(((Heart)gameObject).hasBeenUsed() || this.isObjectOutsideBorders(gameObject)) {
                     super.gameObjects().removeGameObject(gameObject);
                     // System.out.println("[DEBUG] removing heart");
                 }

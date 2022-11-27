@@ -10,6 +10,10 @@ import danogl.util.Vector2;
 import src.gameobjects.Ball;
 import src.utils.TrackedGameObject;
 
+/**
+ * This class handles the strategy that changes the camera to focus
+ * on the ball
+ */
 public class CameraChangeStrategy extends CollisionStrategy {
 
     private final GameManager gameManager;
@@ -25,6 +29,13 @@ public class CameraChangeStrategy extends CollisionStrategy {
         this.windowController = windowController;
     }
 
+    /**
+     * Handles the collision with a brick that has a camera change strategy
+     *
+     * @param collidedObject   Brick that collided
+     * @param colliderObject   Ball
+     * @param bricksCounter    Counter of bricks left
+     */
     @Override
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         super.onCollision(collidedObject, colliderObject, bricksCounter);

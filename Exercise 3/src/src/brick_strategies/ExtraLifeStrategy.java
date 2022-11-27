@@ -9,6 +9,9 @@ import danogl.util.Vector2;
 import src.gameobjects.Heart;
 import src.gameobjects.Puck;
 
+/**
+ * This class handles the strategy that adds an extra life
+ */
 public class ExtraLifeStrategy extends CollisionStrategy {
 
     private static final Vector2 INITIAL_HEART_VELOCITY = new Vector2(0, 100);
@@ -26,7 +29,13 @@ public class ExtraLifeStrategy extends CollisionStrategy {
         this.lifeCounter = lifeCounter;
     }
 
-
+    /**
+     * Handles the collision with a brick that has a extra life strategy
+     *
+     * @param collidedObject   Brick that collided
+     * @param colliderObject   Ball
+     * @param bricksCounter    Counter of bricks left
+     */
     @Override
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         super.onCollision(collidedObject, colliderObject, bricksCounter);

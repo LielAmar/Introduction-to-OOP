@@ -23,7 +23,7 @@ public class Puck extends Ball {
         Random random = new Random();
 
         boolean xSign = random.nextBoolean();
-        boolean ySign = random.nextBoolean();
+        boolean ySign = true; /* random.nextBoolean();*/
 
         super.setVelocity(new Vector2(
                 xSign ? PUCK_INITIAL_VELOCITY : (-1) * PUCK_INITIAL_VELOCITY,

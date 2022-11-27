@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class handles the strategy that applies 2 (or more) powerups
+ */
 public class DoublePowerupStrategy extends CollisionStrategy {
 
     private static final int MAX_STRATEGIES = 3;
@@ -46,11 +49,11 @@ public class DoublePowerupStrategy extends CollisionStrategy {
         }
 
         if(firstStrategy instanceof DoublePowerupStrategy) {
-            CollisionStrategy option1 = strategyRandomizer.getRandomStrategy();
+            CollisionStrategy option1 = strategyRandomizer.getRandomSpecialStrategy();
             CollisionStrategy option2 = strategyRandomizer.getRandomSpecialStrategy();
 
             while (option1 instanceof DoublePowerupStrategy) {
-                option1 = strategyRandomizer.getRandomStrategy();
+                option1 = strategyRandomizer.getRandomSpecialStrategy();
             }
 
             while (option2 instanceof DoublePowerupStrategy) {
@@ -67,11 +70,11 @@ public class DoublePowerupStrategy extends CollisionStrategy {
         }
 
         if(secondStrategy instanceof DoublePowerupStrategy) {
-            CollisionStrategy option1 = strategyRandomizer.getRandomStrategy();
+            CollisionStrategy option1 = strategyRandomizer.getRandomSpecialStrategy();
             CollisionStrategy option2 = strategyRandomizer.getRandomSpecialStrategy();
 
             while (option1 instanceof DoublePowerupStrategy) {
-                option1 = strategyRandomizer.getRandomStrategy();
+                option1 = strategyRandomizer.getRandomSpecialStrategy();
             }
 
             while (option2 instanceof DoublePowerupStrategy) {
@@ -88,6 +91,13 @@ public class DoublePowerupStrategy extends CollisionStrategy {
         }
     }
 
+    /**
+     * Handles the collision with a brick that has a double powerup strategy
+     *
+     * @param collidedObject   Brick that collided
+     * @param colliderObject   Ball
+     * @param bricksCounter    Counter of bricks left
+     */
     @Override
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         super.onCollision(collidedObject, colliderObject, bricksCounter);

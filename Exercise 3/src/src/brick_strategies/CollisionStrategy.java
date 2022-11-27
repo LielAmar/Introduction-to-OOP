@@ -5,7 +5,7 @@ import danogl.collisions.GameObjectCollection;
 import danogl.util.Counter;
 
 /**
- * This class handles the strategy of ball-brick collision
+ * This class handles the default strategy of ball-brick collision
  */
 public class CollisionStrategy {
 

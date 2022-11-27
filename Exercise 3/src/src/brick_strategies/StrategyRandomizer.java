@@ -77,10 +77,10 @@ public class StrategyRandomizer {
         int index = this.random.nextInt(6);
 
         if(index == 0) {
-            return defaultCollisionStrategy();
+            return this.defaultCollisionStrategy();
         }
 
-        return getRandomSpecialStrategy();
+        return this.getRandomSpecialStrategy();
     }
 
     /**
@@ -92,11 +92,11 @@ public class StrategyRandomizer {
         int index = this.random.nextInt(5);
 
         switch (index) {
-            case 0: return cameraChangeStrategy();
-            case 1: return doublePowerupStrategy();
-            case 2: return extraLifeStrategy();
-            case 3: return extraPaddleStrategy();
-            case 4: return extraPucksStrategy();
+            case 0: return this.cameraChangeStrategy();
+            case 1: return this.doublePowerupStrategy();
+            case 2: return this.extraLifeStrategy();
+            case 3: return this.extraPaddleStrategy();
+            case 4: return this.extraPucksStrategy();
         }
 
         return null;

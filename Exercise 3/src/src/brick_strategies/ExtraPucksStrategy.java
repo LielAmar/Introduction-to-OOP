@@ -8,9 +8,10 @@ import danogl.util.Counter;
 import danogl.util.Vector2;
 import src.gameobjects.Puck;
 
+/**
+ * This class handles the strategy that adds extra pucks
+ */
 public class ExtraPucksStrategy extends CollisionStrategy {
-
-    private final static int PUCKS_TO_ADD = 3;
 
     private final Renderable renderable;
     private final Sound sound;
@@ -22,6 +23,13 @@ public class ExtraPucksStrategy extends CollisionStrategy {
         this.sound = sound;
     }
 
+    /**
+     * Handles the collision with a brick that has an extra pucks strategy
+     *
+     * @param collidedObject   Brick that collided
+     * @param colliderObject   Ball
+     * @param bricksCounter    Counter of bricks left
+     */
     @Override
     public void onCollision(GameObject collidedObject, GameObject colliderObject, Counter bricksCounter) {
         super.onCollision(collidedObject, colliderObject, bricksCounter);
@@ -29,19 +37,17 @@ public class ExtraPucksStrategy extends CollisionStrategy {
         // Calculating the size of a puck depending on the size of the
         float puckDiameter = collidedObject.getDimensions().x() / 3;
 
-        for(int i = 0; i < PUCKS_TO_ADD; i++) {
-            GameObject puck = new Puck(
-                    collidedObject.getTopLeftCorner(),
-                    new Vector2(puckDiameter, puckDiameter),
-                    renderable,
-                    sound);
+        GameObject puck = new Puck(
+                collidedObject.getTopLeftCorner(),
+                new Vector2(puckDiameter, puckDiameter),
+                renderable,
+                sound);
 
-            puck.setCenter(new Vector2(
-                    collidedObject.getTopLeftCorner().x() + (i * puckDiameter) + (puckDiameter / 2),
-                    collidedObject.getCenter().y()
-            ));
+        puck.setCenter(new Vector2(
+                collidedObject.getTopLeftCorner().x() + (1 * puckDiameter) + (puckDiameter / 2),
+                collidedObject.getCenter().y()
+        ));
 
-            super.gameObjects.addGameObject(puck);
-        }
+        super.gameObjects.addGameObject(puck);
     }
 }
