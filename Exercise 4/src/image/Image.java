@@ -8,7 +8,8 @@ import java.io.IOException;
  * @author Dan Nirel
  */
 public interface Image {
-    Color getPixel(int x, int y);
+
+    Color getPixel(int col, int row);
     int getWidth();
     int getHeight();
 
@@ -66,6 +67,7 @@ public interface Image {
 
     /**
      * Allows iterating the pixels' colors by order (first row, second row and so on).
+     *
      * @return an Iterable<Color> that can be traversed with a foreach loop
      */
     default Iterable<Color> pixels() {
@@ -73,7 +75,12 @@ public interface Image {
                 this, this::getPixel);
     }
 
-//    default Iterable<Image> subImages() {
-//        return new TwoDArrayIterator<>(this, this::splitToSubImages());
-//    }
+    /**
+     * Allows iterating the sub images by order (first row, second row and so on).
+     *
+     * @return an Iterable<Image> that can be traversed with a foreach loop
+     */
+    default Iterable<Image> subImages(int subImageSize) {
+        return new TwoDArrayIterator<>(this.splitToSubImages(subImageSize));
+    }
 }
