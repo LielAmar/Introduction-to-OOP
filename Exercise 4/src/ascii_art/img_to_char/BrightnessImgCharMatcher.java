@@ -215,6 +215,7 @@ public class BrightnessImgCharMatcher {
 
         return this.getCloser(desired, middle, right);
     }
+
     /**
      * Returns the pair that's closer to the desired item
      *

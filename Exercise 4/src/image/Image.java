@@ -39,7 +39,6 @@ public interface Image {
         int subImagesPerColumn = this.getWidth() / subImageSize;
         int subImagesPerRow = this.getHeight() / subImageSize;
 
-        // TODO might need to change this to a Color[][] instead.
         Image[][] subImages = new SubImage[subImagesPerRow][subImagesPerColumn];
 
         Color[][] subImagePixels;

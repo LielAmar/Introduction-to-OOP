@@ -105,7 +105,8 @@ public class Shell {
                 }
 
                 if (splitCommand[0].equals(REMOVE_COMMAND)) {
-                    this.run_set_command(splitCommand[1], this.allowedCharacters::remove, REMOVE_ERROR_MESSAGE);
+                    this.run_set_command(splitCommand[1], this.allowedCharacters::remove,
+                            REMOVE_ERROR_MESSAGE);
                     continue;
                 }
 
