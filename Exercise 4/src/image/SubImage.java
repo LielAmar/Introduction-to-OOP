@@ -2,6 +2,10 @@ package image;
 
 import java.awt.*;
 
+/**
+ * A package-private class of the package image.
+ * Represents a sub image.
+ */
 public class SubImage implements Image {
 
     private final Color[][] pixels;
@@ -40,17 +44,5 @@ public class SubImage implements Image {
     @Override
     public Color getPixel(int col, int row) {
         return this.pixels[row][col];
-    }
-
-
-    /**
-     * TODO
-     * delete
-     */
-    public String print() {
-        if(getPixel(0, 0).getRed() == 0)
-            return "■";
-
-        return "□";
     }
 }

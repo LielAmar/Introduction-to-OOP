@@ -9,12 +9,11 @@ import java.util.function.BiFunction;
  * @author Dan Nirel
  */
 class ImageIterableProperty<T> implements Iterable<T> {
+
     private final Image img;
     private final BiFunction<Integer, Integer, T> propertySupplier;
 
-    public ImageIterableProperty(
-            Image img,
-            BiFunction<Integer, Integer, T> propertySupplier) {
+    public ImageIterableProperty(Image img, BiFunction<Integer, Integer, T> propertySupplier) {
         this.img = img;
         this.propertySupplier = propertySupplier;
     }

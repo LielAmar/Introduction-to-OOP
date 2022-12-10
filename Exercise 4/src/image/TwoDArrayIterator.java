@@ -5,8 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 
 /**
- * A package-private class of the package image.
- * @author Dan Nirel
+ * An iterator that is capable of going over a 2D array, row by row
  */
 class TwoDArrayIterator<T> implements Iterable<T> {
 
@@ -16,6 +15,11 @@ class TwoDArrayIterator<T> implements Iterable<T> {
         this.array = array;
     }
 
+    /**
+     * Creates an iterator object that iterates over the 2D array row by row.
+     *
+     * @return   Iterator object of type T
+     */
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {

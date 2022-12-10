@@ -1,4 +1,3 @@
-import image.FileImage;
 import image.Image;
 import image.SubImage;
 
@@ -7,7 +6,11 @@ import java.io.IOException;
 public class FileImage_tests {
 
     public static void main(String[] args) throws IOException {
-        FileImage fileImage = new FileImage("./board.jpeg");
+        Image fileImage = Image.fromFile("./board.jpeg");
+
+        if(fileImage == null) {
+            return;
+        }
 
         Image[][] subImages = fileImage.splitToSubImages(4);
 

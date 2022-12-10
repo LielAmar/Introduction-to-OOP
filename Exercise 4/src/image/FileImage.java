@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * A package-private class of the package image.
  */
-/* TODO remove public */public class FileImage implements Image {
+class FileImage implements Image {
 
     private static final Color DEFAULT_COLOR = Color.WHITE;
 

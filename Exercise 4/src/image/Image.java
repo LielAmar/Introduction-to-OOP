@@ -5,7 +5,6 @@ import java.io.IOException;
 
 /**
  * Facade for the image module and an interface representing an image.
- * @author Dan Nirel
  */
 public interface Image {
 
@@ -16,9 +15,9 @@ public interface Image {
     /**
      * Open an image from file. Each dimensions of the returned image is guaranteed
      * to be a power of 2, but the dimensions may be different.
+     *
      * @param filename a path to an image file on disk
-     * @return an object implementing Image if the operation was successful,
-     * null otherwise
+     * @return an object implementing Image if the operation was successful, null otherwise
      */
     static Image fromFile(String filename) {
         try {
