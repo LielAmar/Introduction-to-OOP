@@ -5,6 +5,7 @@ import ascii_output.ConsoleAsciiOutput;
 import ascii_output.HtmlAsciiOutput;
 import image.Image;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -59,6 +60,9 @@ public class Shell {
 
         this.charMatcher = new BrightnessImgCharMatcher(image, DEFAULT_FONT);
         this.allowedCharacters = new HashSet<>();
+        for(int i = '0'; i <= '9'; i++) {
+            this.allowedCharacters.add((char) i);
+        }
 
         this.consoleAsciiOutput = new ConsoleAsciiOutput();
         this.htmlAsciiOutput = new HtmlAsciiOutput(DEFAULT_HTML_FILE_NAME, DEFAULT_FONT);
