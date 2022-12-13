@@ -11,73 +11,50 @@ import java.util.List;
  */
 public class BrightnessImgCharMatcher {
 
-    private static final Map<Character, Double> brightnessMapCache = new HashMap<>();
+    private static final Map<Character, Double> brightnessMap = new HashMap<>();
+
     private static final double MAX_BRIGHTNESS = 1;
     private static final double MIN_BRIGHTNESS = 0;
+
     private static final int CHAR_RESOLUTION = 16;
+
+    private static final char MIN_CHAR = 32;
+    private static final char MAX_CHAR = 127;
+
+    private static final int MAX_RGB_VALUE = 255;
+
+    private static final double RED_PERCENTAGE = 0.2126;
+    private static final double GREEN_PERCENTAGE = 0.7152;
+    private static final double BLUE_PERCENTAGE = 0.0722;
 
     private final Image image;
     private final String font;
 
+    // Last cached calculations
+    private Pair<Integer, Pair<Image[][], Double[][]>> cachedSubImagesData;
+
     public BrightnessImgCharMatcher(Image img, String font) {
         this.image = img;
         this.font = font;
-    }
 
-    /**
-     * Translates the image passed in the constructor into an ascii image
-     *
-     * @param numCharsInRow   Number of ascii characters in a single row
-     *                        Can assume it's lower than the image width
-     * @param charSet         Set of allowed characters for the ascii image
-     * @return                The ascii image represented in a 2D array
-     */
-    public char[][] chooseChars(int numCharsInRow, Character[] charSet) {
-        // Creates a Map that stores for each character, it's corresponding brightness level
-        Map<Character, Double> brightnessMap = this.calculateBrightnessLevels(charSet);
-        this.calculateUpdatedBrightnessLevels(brightnessMap);
+        this.cachedSubImagesData = null;
 
-        // Sort all brightness levels
-        List<Pair<Character, Double>> brightnessLevels = this.sortBrightnessLevels(brightnessMap);
-
-        // Splits the image into sub images of size ${subImageSize}
-        int subImageSize = this.image.getWidth() / numCharsInRow;
-        Image[][] subImages = this.image.splitToSubImages(subImageSize);
-
-        char[][] result = new char[subImages.length][subImages[0].length];
-
-        // Loops over all subImages and saves the closest character to its brightness
-        for (int i = 0; i < subImages.length; i++) {
-            for (int j = 0; j < subImages[0].length; j++) {
-                double subImageBrightness = this.calculateSubImageBrightness(subImages[i][j]);
-
-                result[i][j] = this.getClosestValue(subImageBrightness, brightnessLevels).getKey();
-            }
+        if(brightnessMap.size() == 0) {
+            this.calculateBrightnessLevels();
         }
-
-        return result;
     }
 
-
     /**
-     * Loops over every character in the given set and calculates the brightness level
-     * of each. It translates the character into a 16x16 image, and checks what percentage of
+     * Loops over every character and calculates the brightness level of each.
+     * It translates the character into a 16x16 image, and checks what percentage of
      * the pixels is white.
-     * This function's time complexity is O(n * (CHAR_RESOLUTION^2)) whereas n = length(charSet)
-     *
-     * @param charSet   Characters to calculate brightness of
-     * @return          Brightness level of each character
+     * This function's time complexity is O(126 * (CHAR_RESOLUTION^2))
      */
-    private Map<Character, Double> calculateBrightnessLevels(Character[] charSet) {
-        Map<Character, Double> brightness = new HashMap<>();
+    private void calculateBrightnessLevels() {
+        for(int i = MIN_CHAR; i < MAX_CHAR; i++) {
+            char character = (char) i;
 
-        for(Character c : charSet) {
-            if(brightnessMapCache.containsKey(c)) {
-                brightness.put(c, brightnessMapCache.get(c));
-                continue;
-            }
-
-            boolean[][] charImage = CharRenderer.getImg(c, CHAR_RESOLUTION, this.font);
+            boolean[][] charImage = CharRenderer.getImg(character, CHAR_RESOLUTION, this.font);
 
             int trueCounter = 0;
             int pixelCounter = 0;
@@ -94,33 +71,74 @@ public class BrightnessImgCharMatcher {
 
             double brightnessValue = ((double) trueCounter / pixelCounter);
 
-            brightness.put(c, brightnessValue);
-            brightnessMapCache.put(c, brightnessValue);
+            brightnessMap.put(character, brightnessValue);
+        }
+    }
+
+
+    /**
+     * Translates the image passed in the constructor into an ascii image
+     *
+     * @param numCharsInRow   Number of ascii characters in a single row
+     *                        Can assume it's lower than the image width
+     * @param charSet         Set of allowed characters for the ascii image
+     * @return                The ascii image represented in a 2D array
+     */
+    public char[][] chooseChars(int numCharsInRow, Character[] charSet) {
+        // Creates a Map that stores for each character, it's corresponding brightness level
+        Map<Character, Double> updatedBrightnessLevels = this.calculateUpdatedBrightnessLevels(charSet);
+
+        // Sort all brightness levels
+        List<Pair<Character, Double>> brightnessLevels = this.sortBrightnessLevels(updatedBrightnessLevels);
+
+        // Used cached/re-caches data and returns a 2D array of sub-images and a 2D array of brightnesses
+        Pair<Image[][], Double[][]> data = this.getSubImagesData(numCharsInRow);
+
+        Image[][] subImages = data.getKey();
+        Double[][] subImagesBrightnessLevels = data.getValue();
+
+        // Created the 2D result array by looping over every sub-image and getting the closest character
+        // to its brightness level
+        char[][] result = new char[subImages.length][subImages[0].length];
+
+        for (int row = 0; row < subImages.length; row++) {
+            for (int column = 0; column < subImages[0].length; column++) {
+                result[row][column] = this.getClosestValue(subImagesBrightnessLevels[row][column],
+                        brightnessLevels).getKey();
+            }
         }
 
-        return brightness;
+        return result;
     }
+
 
     /**
      * Calculates the updated brightness level of each character, using the maximum and minimum ones.
-     * This function's time complexity is O(n) whereas n = length(brightnessMap)
+     * This function's time complexity is O(126) at max
      *
-     * @param brightnessMap   A map of brightness level for each character
+     * @param characters   A set of allowed characters
+     * @return             A map of allowed characters and their normalized brightness level
      */
-    private void calculateUpdatedBrightnessLevels(Map<Character, Double> brightnessMap) {
+    private Map<Character, Double> calculateUpdatedBrightnessLevels(Character[] characters) {
         double max_brightness = MIN_BRIGHTNESS, min_brightness = MAX_BRIGHTNESS;
 
-        for(Double charBrightness : brightnessMap.values()) {
-            max_brightness = (max_brightness < charBrightness) ? charBrightness : max_brightness;
-            min_brightness = (min_brightness > charBrightness) ? charBrightness : min_brightness;
+        for(Character character : characters) {
+            double charBrightness = brightnessMap.get(character);
+
+            max_brightness = Math.max(max_brightness, charBrightness);
+            min_brightness = Math.min(min_brightness, charBrightness);
         }
 
-        for(Character character : brightnessMap.keySet()) {
+        Map<Character, Double> updatedBrightnessLevels = new HashMap<>();
+
+        for(Character character : characters) {
             double newBrightness = (brightnessMap.get(character) - min_brightness) /
                     (max_brightness - min_brightness);
 
-            brightnessMap.put(character, newBrightness);
+            updatedBrightnessLevels.put(character, newBrightness);
         }
+
+        return updatedBrightnessLevels;
     }
 
     /**
@@ -142,6 +160,39 @@ public class BrightnessImgCharMatcher {
 
 
     /**
+     * A function that either returns cached data or calculates new data and caches it
+     *
+     * @param numCharsInRow   Number of characters in a single row in the ascii output
+     *                        Used to access the right cached value
+     * @return                Data matching the given numCharsInRow
+     */
+    private Pair<Image[][], Double[][]> getSubImagesData(int numCharsInRow) {
+        // If we have the data cached, we simply return it
+        if(this.cachedSubImagesData != null && this.cachedSubImagesData.getKey() == numCharsInRow) {
+            return this.cachedSubImagesData.getValue();
+        }
+
+        // Else, split the image into sub images of size ${subImageSize}, calculate all
+        // sub-images brightness levels and cache it
+        int subImageSize = this.image.getWidth() / numCharsInRow;
+        Image[][] subImages = this.image.splitToSubImages(subImageSize);
+
+        Double[][] subImageBrightnesses = new Double[subImages.length][subImages[0].length];
+
+        // Loops over all subImages and saves the closest character to its brightness
+        for (int i = 0; i < subImages.length; i++) {
+            for (int j = 0; j < subImages[0].length; j++) {
+                subImageBrightnesses[i][j] = this.calculateSubImageBrightness(subImages[i][j]);
+            }
+        }
+
+        Pair<Image[][], Double[][]> subImagesData = new Pair<>(subImages, subImageBrightnesses);
+        this.cachedSubImagesData = new Pair<>(numCharsInRow, subImagesData);
+
+        return subImagesData;
+    }
+
+    /**
      * Calculates the brightness of a sub image
      *
      * @param subImage     Sub image to calculate the brightness of
@@ -155,8 +206,8 @@ public class BrightnessImgCharMatcher {
             for(int col = 0; col < subImage.getWidth(); col++) {
                 Color pixel = subImage.getPixel(col, row);
 
-                double greyPixel = pixel.getRed() * 0.2126 +
-                        pixel.getGreen() * 0.7152 + pixel.getBlue() * 0.0722;
+                double greyPixel = pixel.getRed() * RED_PERCENTAGE +
+                        pixel.getGreen() * GREEN_PERCENTAGE + pixel.getBlue() * BLUE_PERCENTAGE;
 
                 greyPixelsSum += greyPixel;
 
@@ -164,7 +215,7 @@ public class BrightnessImgCharMatcher {
             }
         }
 
-        return greyPixelsSum / (totalPixels * 255);
+        return greyPixelsSum / (totalPixels * MAX_RGB_VALUE);
     }
 
 

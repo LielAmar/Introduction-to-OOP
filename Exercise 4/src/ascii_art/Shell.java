@@ -34,9 +34,15 @@ public class Shell {
     private static final String WIDTH_CHANGE_MESSAGE = "Width set to %d";
     private static final String WIDTH_CHANGE_ERROR_MESSAGE = "Did not change due to exceeding boundaries";
     private static final String INCORRECT_COMMAND_MESSAGE = "Did not executed due to incorrect command";
+    private static final String NO_ALLOWED_CHARS_MESSAGE = "Your character list is empty. Try again.";
 
     private static final int MIN_PIXELS_PER_CHAR = 2;
     private static final int INITIAL_CHARS_IN_ROW = 64;
+
+    private static final char MIN_CHAR = 32;
+    private static final char MAX_CHAR = 127;
+    private static final char INIT_CHARS_BEGINNING = '0';
+    private static final char INIT_CHARS_ENDING = '9';
 
     private static final String DEFAULT_HTML_FILE_NAME = "./out.html";
     private static final String DEFAULT_FONT = "Courier New";
@@ -60,7 +66,7 @@ public class Shell {
 
         this.charMatcher = new BrightnessImgCharMatcher(image, DEFAULT_FONT);
         this.allowedCharacters = new HashSet<>();
-        for(int i = '0'; i <= '9'; i++) {
+        for(int i = INIT_CHARS_BEGINNING; i <= INIT_CHARS_ENDING; i++) {
             this.allowedCharacters.add((char) i);
         }
 
@@ -85,6 +91,10 @@ public class Shell {
             System.out.print(COMMAND_PREFIX);
             command = this.scanner.nextLine();
 
+            if(command.length() == 0) {
+                continue;
+            }
+
             if(command.equals(CHARS_COMMAND)) {
                 this.run_chars();
                 continue;
@@ -102,7 +112,7 @@ public class Shell {
 
             String[] splitCommand = command.split(" ");
 
-            if(splitCommand.length != 1) {
+            if(splitCommand.length == 2) {
                 if (splitCommand[0].equals(ADD_COMMAND)) {
                     this.run_set_command(splitCommand[1], this.allowedCharacters::add, ADD_ERROR_MESSAGE);
                     continue;
@@ -125,6 +135,7 @@ public class Shell {
         } while(!command.equals(EXIT_STRING));
     }
 
+
     /**
      * Prints all characters that can be used within our program.
      */
@@ -144,9 +155,15 @@ public class Shell {
     }
 
     /**
-     * Renders the image at the current resolution with current characters
+     * Renders the image at the current resolution with allowed characters.
+     * If we don't have any allowed characters, prints a message to the screen
      */
     private void run_render() {
+        if(this.allowedCharacters.size() == 0) {
+            System.out.println(NO_ALLOWED_CHARS_MESSAGE);
+            return;
+        }
+
         char[][] output = charMatcher.chooseChars(this.charsInRow,
                 this.allowedCharacters.toArray(new Character[]{}));
 
@@ -170,7 +187,7 @@ public class Shell {
         } else if(characters.equals(SPACE_KEYWORD)) {
             callback.run(' ');
         } else if(characters.equals(ALL_KEYWORD)) {
-            for(int i = 32; i < 127; i++) {
+            for(int i = MIN_CHAR; i < MAX_CHAR; i++) {
                 callback.run((char) i);
             }
         } else if(characters.length() == 3 && characters.charAt(1) == '-') {
@@ -202,7 +219,7 @@ public class Shell {
      */
     private boolean run_res(String command) {
         if(command.equals(UP_KEYWORD)) {
-            if(this.charsInRow * 2 < this.maxCharsInRow) {
+            if(this.charsInRow * 2 <= this.maxCharsInRow) {
                 this.charsInRow *= 2;
                 System.out.printf((WIDTH_CHANGE_MESSAGE) + "%n", this.charsInRow);
             } else {
@@ -211,7 +228,7 @@ public class Shell {
 
             return true;
         } else if(command.equals(DOWN_KEYWORD)) {
-            if(this.charsInRow / 2 > this.minCharsInRow) {
+            if(this.charsInRow / 2 >= this.minCharsInRow) {
                 this.charsInRow /= 2;
                 System.out.printf((WIDTH_CHANGE_MESSAGE) + "%n", this.charsInRow);
             } else {
@@ -224,12 +241,11 @@ public class Shell {
         return false;
     }
 
+
     /**
      * An interface used for lambdas
      */
     private interface SetCommand {
-
         void run(char character);
-
     }
 }

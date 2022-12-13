@@ -53,11 +53,6 @@ public interface Image {
                         int currentPixelCol = (col * subImageSize) + j;
 
                         subImagePixels[i][j] = this.getPixel(currentPixelCol, currentPixelRow);
-
-                        if(this.getPixel(currentPixelCol, currentPixelRow).getRed() != 255) {
-                            System.out.println("row: " + row + ", col: " + col);
-                            System.out.println("i: " + i + ", j: " + j);
-                        }
                     }
                 }
 

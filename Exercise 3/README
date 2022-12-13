@@ -1,0 +1,54 @@
+lielamar
+211771993
+
+Changes in Existing Classes:
+  - Ball
+    - Added a constructor with the ballHitCounter field to be able to track and use the number of
+      collisions the ball made
+
+  - CollisionStrategy
+    - Changed the gameObjects field to be protected (instead of private) to allow access to children
+      classes.
+
+  - GraphicLifeCounter
+    - Added functionality to be able to support an dynamic amount of hearts, and implemented the Heart
+      class instead of an hard-coded game object
+
+New Classes:
+  - Heart
+    - An object that represents a heart (either falling or static) in the game.
+      If it's a static heart, we regenerate 1 life for the player.
+
+  - Puck
+    - Puck is extending ball since puck is a type of ball. It also has a renderable and a sound to play
+      whenever a collision is made.
+      The reason we decided to go with inheritance is because puck should have all the functionality
+      a ball has, with a few added purposes.
+      BrickerGameManager would run different checks on pucks, therefore they won't
+      affect lives etc. unlike the regular ball.
+    - The behavior of a Puck is controlled by BrickerGameManager by having
+
+  - FinitePaddle
+    - FinitePaddle is extending paddle since it is a type of paddle. However, it adds the new functionality
+      of having a finite amount of uses.
+    - The control of the FinitePaddle is exactly the same as the original paddle, but BrickerGameManager
+      knows to remove the created FinitePaddle when its life reaches 0.
+
+  - ExtraPaddleStrategy
+  - ExtraPucksStrategy
+  - ExtraLifeStrategy
+  - CameraChangeStrategy
+  - DoublePowerupStrategy
+  - StrategyRandomizer
+
+  - utils.BoundedCounter
+    - Added a wrapper to the counter class, to add functionality of limitations to the counter.
+      We then use BoundedCounter for the player's lives, to max sure it doesn't go past 4.
+
+  - utils.TrackedGameObject
+    - Added an abstract class that is an extension to the default GameObject.
+      It adds the ability to track a number, which we use to track the number of hits when
+      a camera change is active.
+
+
+TODO: might wanna create a CloneableGameObject (extends GameObject) that would make an object cloneable

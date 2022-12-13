@@ -5,6 +5,5 @@
 *.tar
 *.rar
 */.idea/
-README
 */out/
 *.class

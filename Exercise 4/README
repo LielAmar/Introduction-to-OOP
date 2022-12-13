@@ -1,0 +1,142 @@
+lielamar
+211771993
+
+=============================
+=      File description     =
+=============================
+BrightnessImgCharMatcher.java - A file that handles the translation between the image
+                                and the ascii output. It is optimised when running multiple times by
+                                caching the latest values used
+Shell.java                    - A file that handles all shell commands, like adding/remove characters,
+                                updating the resolution or rendering the image
+Image.java                    - An interface that represents an image object with a grid of pixels
+FileImage.java                - A specific implementation of the Image interface, that is capable of
+                                loading a file into the pixel grid
+SubImage.java                 - A specific implementation of the Image interface, that represents a
+                                portion of an image
+TwoDArrayIterator.java        - A helper, iterator, class that allows iterating over a 2D array by rows
+
+=============================
+=          Design           =
+=============================
+I implemented the Ascii Art project with polymorphism and design patterns in mind, in general.
+I've used interfaces such as Image to have similar logic put together.
+This way, FileImage and SubImage are both types of Image, which later then allowed for the usage of
+polymorphism in a good-practice way.
+In addition, SubImage is overriding the equals and hash functions to tellw hen two subimages
+are the same.
+I've also used inner sub classes such as Pair (under BrightnessImgCharMatcher) to help develop
+the class' logic, without creating outside classes that are only used in one place.
+I've also created an generic class for iterating over a 2D array - TwoDArrayIterator, which is
+capable of iterating over every type of array.
+
+=============================
+=  Implementation details   =
+=============================
+In BrightnessImgCharMatcher.java I've used a caching technique as well as optimised data-structures.
+I've used HashMaps for quick operations (O(1) average time) and then converted it into a sorted list,
+which helped searching in O(log(n)) where n = number of items in that list.
+
+As for other classes - implementation was kept in mind using good data structures and well
+written algorithms
+
+=============================
+=    Answers to questions   =
+=============================
+1.A. Time Complexity
+   FileImage.java:
+   - Upon creating an new FileImage, we are looping over all pixels in O(n*m) whereas
+     n=height and m=width of the image, and initialize the pixel array.
+
+   Image.java:
+   - I've decided to represent a sub image as a 2D array of Image.
+     This way, we can access a specific sub image in O(1), simply by using it's row and column.
+     Splitting the image into sub images is done in O(k^2 + n*m) whereas k=size of each sub image.
+   - In order to allow iterations over all sub images, we've added a new class called TwoDArrayIteator
+     which receives a 2D and loops over it.
+     The time-complexity of creating the iterator as the same as the split method since we split the
+     image once again, and pass it to the iterator.
+
+   SubImage.java:
+   - Overriding the equals and hash functions to tell when two sub images are the same
+
+   BrightnessImgCharMatcher.java:
+   - we are using a HashMap to store the brightness level of each character.
+     This way we can access, add and modify values in O(1) average time.
+     We pre-calculate all possible brightness levels (126-32) when the constructor is called instead
+     of re-calculating it every time chooseChars is called.
+     This is done in O(126) time complexity.
+
+   - When chooseChars is called, we are looping over all characters given in the charSet,
+     and normalizing their values. This is done in O(126*(16^2)) time complexity as well.
+
+   - Once we have the normalized values done, we want to sort a list of pairs, holding characters and
+     their corresponding brightness value.
+     We sort the list using the built-in sorted method, which runs at O(126*log(126)),
+     and we do so because then we can utilize the fact that the list is sorted to be able to
+     find the closest value in time complexity of O(log(126)) using binary search
+
+   - To return the result, we want to split the image into sub images.
+     To optimise this, we save a cache of the last split image.
+     If the last split image was the same size as the current one, we can use the cached value retrieved
+     in O(1).
+     Otherwise, we want to loop over the image, split it into sub images and calculate the
+     brightness level of each sub image. This is done in O(n*m + l) whereas l=number of sub images.
+
+   - The we return the character that has the closest brightness level using binary search with time
+     complexity of O(126) as mentioned above.
+
+   Shell.java:
+   - in this file, every operation we do is O(1) since we are changing a limited number of variables,
+     except for the render command which calls BrightnessImgCharMatcher.chooseChars.
+     Therefore, it's time complexity is the same as BrightnessImgCharMatcher's.
+
+1.B. Space Complexity
+  FileImage.java:
+  - The time complexity of FileImage is O(n*m), since we're saving a 2D grid of all pixels
+
+  Image.java:
+  - When splitting the image into sub-images, we are using O(n*m).
+    This is because we have a 2D array of sub images of size (n/k)*(m/k), whereas
+    k=size of each sub image, however, all those sub images hold the whole pixel grid, resulting in n*m
+    space complexity.
+
+  BrightnessImgCharMatcher.java:
+  - We hold a cache map which is O(126) [max allowed characters] at max
+    We use it to prevent calculating values over and over again, but rather caching them.
+
+  - We also hold a cache of the last calculated sub-image size, which is O(n*m + l) whereas
+    l=number of sub images.
+    This is because we store all sub images from previous calculations, and their brightness levels.
+
+  - When chooseChars is called, we use O(126) space-complexity at max to create
+    the HashMap that holds all brightness values of the current characters.
+    Then, we sort the entries of the hashmap, using O(126) space-complexity since we create a sorted list
+    of pairs, holding the characters and their values.
+  - In the end, we create a 2D result array, which is of size O((n/k)*(m/k)) - representing the characters
+    assigned to each sub image, and we return it.
+
+1.C. Why HashMap and not TreeMap?
+  So, TreeMap is a Map that's already sorted, which could've helped us in avoiding inserting all items
+  to a HashMap and then sort it. However, we've chosen to use HashMap at the end because HashMap
+  allows us to execute every operation in O(1), instead of O(log(n)) like TreeMap.
+  When sorting the HashMap items, we do lose a bit of time compared to TreeMap, but it balances with the
+  advantages of insert, updated and remove.
+  In addition, TreeMap does not allow us to directly access the items, resulting in a very difficult
+  searching algorithm when searching for a closest value and not an exact one.
+
+2. How did we design our API?
+  - In our API, we decided to create a new class called SubImage, which represents a single, sub-image
+    of a bigger image.
+    It has all the properties a regular image has, except it represents a smaller portion of it.
+    In the Image interface, we've added a default method that splits the current image into smaller
+    pieces of type SubImage, and returns the result in a 2D array.
+    This allows us to then enable iteration over all sub images through the default #subImages(int)
+    method for easier usage.
+
+3. How does the Iterator work?
+  - The new iterator (TwoDArrayIterator) is a simple iterator that receives a 2D array of any type,
+    and then iterates over it, row by row.
+    This way, when splitting the image into sub images, we essentially get a 2D array of SubImage objects.
+    We pass it into the TwoDArrayIterator, which then allows us to iterate over all items.
+    Whenever it reaches the end of the current row, it jumps to the next one until it has no more rows left.
