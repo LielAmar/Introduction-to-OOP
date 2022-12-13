@@ -1,0 +1,30 @@
+lielamar
+211771993
+
+Mr. Whatever:
+For Mr. Whatever, we are generating a random row and a random column for as long as needed
+until we have an available spot for the placement
+
+Mr. Clever:
+For Mr. Clever we loop over all cells left to right and top to bottom.
+
+Mr. Genius:
+Starts from the 2nd column and goes top to bottom.
+
+"java Tournament 10000 5 5 none clever whatever"
+######### Results #########
+Player 1, clever won: 9177 rounds
+Player 2, whatever won: 822 rounds
+Ties: 1
+
+"java Tournament 10000 5 5 none clever genius"
+######### Results #########
+Player 1, clever won: 0 rounds
+Player 2, genius won: 10000 rounds
+Ties: 0
+
+"java Tournament 10000 5 5 none whatever whatever"
+######### Results #########
+Player 1, whatever won: 4754 rounds
+Player 2, whatever won: 4797 rounds
+Ties: 449

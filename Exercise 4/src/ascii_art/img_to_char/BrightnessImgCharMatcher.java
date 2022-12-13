@@ -11,8 +11,6 @@ import java.util.List;
  */
 public class BrightnessImgCharMatcher {
 
-    private static final Map<Character, Double> brightnessMap = new HashMap<>();
-
     private static final double MAX_BRIGHTNESS = 1;
     private static final double MIN_BRIGHTNESS = 0;
 
@@ -30,6 +28,8 @@ public class BrightnessImgCharMatcher {
     private final Image image;
     private final String font;
 
+    private final Map<Character, Double> brightnessMap;
+
     // Last cached calculations
     private Pair<Integer, Pair<Image[][], Double[][]>> cachedSubImagesData;
 
@@ -37,11 +37,10 @@ public class BrightnessImgCharMatcher {
         this.image = img;
         this.font = font;
 
-        this.cachedSubImagesData = null;
+        this.brightnessMap = new HashMap<>();
+        this.calculateBrightnessLevels();
 
-        if(brightnessMap.size() == 0) {
-            this.calculateBrightnessLevels();
-        }
+        this.cachedSubImagesData = null;
     }
 
     /**
@@ -71,7 +70,7 @@ public class BrightnessImgCharMatcher {
 
             double brightnessValue = ((double) trueCounter / pixelCounter);
 
-            brightnessMap.put(character, brightnessValue);
+            this.brightnessMap.put(character, brightnessValue);
         }
     }
 
@@ -123,7 +122,7 @@ public class BrightnessImgCharMatcher {
         double max_brightness = MIN_BRIGHTNESS, min_brightness = MAX_BRIGHTNESS;
 
         for(Character character : characters) {
-            double charBrightness = brightnessMap.get(character);
+            double charBrightness = this.brightnessMap.get(character);
 
             max_brightness = Math.max(max_brightness, charBrightness);
             min_brightness = Math.min(min_brightness, charBrightness);
@@ -132,7 +131,7 @@ public class BrightnessImgCharMatcher {
         Map<Character, Double> updatedBrightnessLevels = new HashMap<>();
 
         for(Character character : characters) {
-            double newBrightness = (brightnessMap.get(character) - min_brightness) /
+            double newBrightness = (this.brightnessMap.get(character) - min_brightness) /
                     (max_brightness - min_brightness);
 
             updatedBrightnessLevels.put(character, newBrightness);
