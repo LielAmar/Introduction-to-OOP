@@ -1,0 +1,167 @@
+omerferster
+lielamar
+
+
+UML_BEFORE:
+At first sight of reading the exercise pdf we didnt expect that we will use inheritance the way we did.
+We first created the basic packages and classes that must be implemented without really knowing
+how they relate. In each class we started by implementing the methods that were written in the pdf.
+At the beginning of the writing there was not a lot of connection between the classes, each class contained
+only what was written in the pdf without knowing that we will need to extend the API much more later.
+We also didn't know how we want to implement the infinite world, so we had a very basic idea that
+later on changed and supported multiple managers within it, through the usage of interfaces and
+polymorphism.
+
+
+UML_AFTER:
+During the exercise, we noticed there are far better ways to implement the game.
+We've used inheritance in multiple cases, to make it easier to handle common behaviour.
+We also used several interfaces, allowing for the code to be more generic and use polymorphism.
+We decided to add more options and mechanics to the game, and therefore we've had far more classes
+than expected. We had to expand the API to support all the things we've added.
+At the end, the code ended up being way more generic, readable and expandable.
+We kept encapsulation in mind while writing the code, and all components are as independent as possible.
+
+In terms of actual components:
+- We ended up splitting the tree logic into three separate classes, each handling a part of the tree.
+- Leaves and logs have inherited from Block to preserve common behaviour.
+- We added an EntityManager class to be able to create entities of any type.
+- We gave "components" to entities, allowing them to have multiple behaviours regardless of their
+  class type.
+- We implemented a generic way of display data on the screen, as well as tracking data with properties.
+
+
+Infinite world:
+We decided to split the screen to X chunks (X depends on the screen width) and add another two chunks one
+from each side.
+Every class that can create objects for the game world has implemented the interface WorldGenerator that
+allowed us to have common behavior and polymorphism.
+
+We decided to create a class solely to handle the infinite world. This class receives a list of
+WorldGenerator objects, and whenever needed, it creates new objects and removes old ones.
+WorldGenerator objects must implement the "CreateInRangeAndReturn" function, which then allows the
+InfiniteWorldManager to track all objects within a specific chunk and remove them very quickly.
+
+To know when we need to update the world, we created a function that receives the avatar's current x
+position, and if the avatar is too close to the end of a specific side, we extend that side and reduce
+the other one. This method gives the effect of an infinite world since we always expand it with the avatar
+movement.
+
+Each chunk has its own seed generated from the startingX and endingX. This way, when we re-generate a
+specific chunk, it's randomness will always be the same, resulting in the same environment to be created.
+
+Just in case we couldn't expand the world, we decided to throw a ChunkException, so developers are able
+to handle those cases. In our implementation, we simply printed a message to the console.
+Such exception shouldn't be possible to happen regardless, but we thought it'd be a nice addition.
+
+
+Tree Package Explanation:
+We decided to extend the trees package by implementing 3 different classes: Tree, Log and Leaf.
+
+We decided that Log and Leaf will extend Block because they extend its behaviour, while still being a type
+of block. Both Log and Leaf should be the same size as a Block, and should have collision with other
+decided layers.
+
+- Leaf class -
+A leaf object has a special behavior in our game. Each leaf has multiple Transitions added for
+making the leaf fall to the ground, change size and move back and forth which make the
+leaf look more realistic.
+Each leaf has a random "life time" which describes how long the leaf will stay on the tree.
+
+- Log class -
+A log object represent a single Block in the trunk of a specific tree.
+It behaves exactly like a normal Block object except its renderer.
+
+- Tree class -
+The Tree class handles the creation of trees across the game's world.
+It creates trees in random positions depending on the given chunk borders
+and creates random looking trees by randomizing the leaves created, and the tree height.
+
+We had to divide Log and Leaf into different classes because they behave differently.
+It also allowed us to add each of them to a different layer, which enabled us to have collision with only
+logs, but not leaves.
+
+
+Design Decisions:
+- Constants -
+We decided to export all the constant fields we use to one class that stores them all.
+This way we can use those constants in multiple places without having code duplications.
+We also created an Enum to store the Layers we use in the game.
+
+- Pair -
+In the InfiniteWorld implementation we needed a way to separate between chunks. We created the Pair class
+which holds a generic pair that contains the startingX and endingX location for each chunk in the screen.
+The Pair class overrides the "equals, hashCode" methods to tell if the chunks are identical.
+We use it to map the chunks into a HashMap, and be able to delete and create chunks efficiently.
+
+- Noise Generator -
+We found a good implementation of the Perlin Noise function and decided to use it.
+We only used the 1d version, which allowed us to have a smooth terrain.
+
+- Callbacks -
+In order to be able to pass functions into other objects, we decided to create two types of callbacks.
+"FloatCallback" allows us to pass a function that gets and returns float values.
+This is used to pass the #heightAtX function to other objects that need to know the terrain height in order
+to work perfectly.
+"UIGameObjectCallback" is used to handle updates of UI elements, such as health and energy bars.
+
+- WorldGenerators -
+To allow the infinite world to create objects with ease, we wanted a single, common, way of handling this
+aspect.
+We decided to add an interface call WorldGenerator, which demanded classes to have the
+CreateInRangeAndReturn function. This function is then used by the InfiniteWorldManager to keep track
+of created objects and delete/create new ones.
+This allows the code to be very generic since all we need to do to add new generator, is implement
+WorldGenerator and pass it to InfiniteWorldManager.
+
+- Properties -
+We wanted to keep track of game objects properties and use them to update the game and the object.
+We didn't want to be limited to a single type of one property so we decided to create an interface IProperty
+which each property must implement set / get value that allowed us to update the object properties.
+In our game the Avatar object had Health & Energy properties which are both numeric, therefore we created
+the NumericProperty class which represent a numeric property.
+
+- UI -
+We wanted to display information on the screen so we decided to create an abstract class representing a
+UIGameObject and then implemented two options: A textual UI game object, and a visual UI game object.
+Those are used to display the health and energy on the screen, and the fact they both inherit from
+UIGameObject make the code cleaner, without code-duplication.
+
+- Entities -
+We wanted to have a generic way of creating entities within the game.
+We noticed that all entities have common properties, like health, position, animations etc.
+We decided to create an abstract class called Entity to hold all common functionality, and then
+create different entities that would extend this behaviour.
+We decided that all entities would be damagable, therefore, we added a new interface called IDamagable
+to require the methods needed for this property.
+In addition, we wanted to create "good" and "bad" entities - IPassive and IHostile.
+Those interfaces allowed us to combine good and bad entities together, and reduce code duplication.
+At last, we wanted some entities to have AI Movement, so we extended the Entity abstract class with
+new features that allowed entities to move in a certain pattern.
+
+- Avatar implementation -
+When developing the entities, we noticed the avatar could inherit from Entity since it has many
+common behaviours. This way, we reduced even more code-duplication, by combining the two.
+
+
+Bonuses:
+- Health -
+We added a health functionality to all entities, to be able to damage them and keep track of when they die.
+
+- Game Restart -
+When the Avatar health bar will be empty (Health reach zero) a message of losing the game pops
+pon the screen and ask the player to restart the game if he wish.
+
+- Hostile Entities -
+We added entities that attack the avatar (render as a Pirate) if its too close to them,
+causing its health to drop.
+
+- Passive Entities -
+We added entities that heal the avatar when the avatar kills them (like rabbits).
+
+- Entity Manager -
+We added a class to manager the created entities: It creates rabbits and pirates across the map,
+and is of type WorldGenerator.
+
+- Avatar Attack -
+The avatar can attack and kill other entities by click 'a' on the keyboard.
