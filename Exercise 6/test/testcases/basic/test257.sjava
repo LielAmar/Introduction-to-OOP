@@ -1,0 +1,13 @@
+int a;
+boolean k;
+boolean d = true;
+void foo(){
+a = 7;
+d = k;
+return;
+}
+void boo(){
+a=3;
+int b = a;
+return;
+}

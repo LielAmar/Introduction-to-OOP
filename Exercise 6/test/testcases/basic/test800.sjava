@@ -1,0 +1,13 @@
+         int a ,     j;
+int b;
+double c;
+boolean d;
+String e;
+char f;
+
+               a     = 1, b= 1, c  = .1,  d     =    true,  e  = "Hello World"   ,   f = '3';
+
+       void omer(int a) {
+
+       foo   (         5,   a,  "Hello liel"  , 9.01) ;
+}
