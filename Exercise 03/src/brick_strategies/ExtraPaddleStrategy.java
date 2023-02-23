@@ -1,4 +1,4 @@
-package src.brick_strategies;
+package brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.GameObjectCollection;
@@ -6,7 +6,7 @@ import danogl.gui.UserInputListener;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.gameobjects.FinitePaddle;
+import gameobjects.FinitePaddle;
 
 /**
  * This class handles the strategy that adds an extra paddle

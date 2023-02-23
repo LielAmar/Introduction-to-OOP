@@ -1,4 +1,4 @@
-package src.brick_strategies;
+package brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.GameObjectCollection;
@@ -6,7 +6,7 @@ import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.gameobjects.Puck;
+import gameobjects.Puck;
 
 /**
  * This class handles the strategy that adds extra pucks

@@ -1,4 +1,4 @@
-package src.gameobjects;
+package gameobjects;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;

@@ -1,4 +1,4 @@
-package src.utils;
+package utils;
 
 import danogl.GameObject;
 import danogl.gui.rendering.Renderable;

@@ -1,4 +1,4 @@
-package src.brick_strategies;
+package brick_strategies;
 
 import danogl.GameObject;
 import danogl.collisions.GameObjectCollection;

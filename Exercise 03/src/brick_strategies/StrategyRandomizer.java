@@ -1,4 +1,4 @@
-package src.brick_strategies;
+package brick_strategies;
 
 import danogl.GameManager;
 import danogl.collisions.GameObjectCollection;
@@ -8,7 +8,7 @@ import danogl.gui.WindowController;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.utils.TrackedGameObject;
+import utils.TrackedGameObject;
 
 import java.util.Random;
 

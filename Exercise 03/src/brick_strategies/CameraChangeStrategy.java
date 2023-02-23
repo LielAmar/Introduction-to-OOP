@@ -1,4 +1,4 @@
-package src.brick_strategies;
+package brick_strategies;
 
 import danogl.GameManager;
 import danogl.GameObject;
@@ -7,8 +7,8 @@ import danogl.gui.WindowController;
 import danogl.gui.rendering.Camera;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import src.gameobjects.Ball;
-import src.utils.TrackedGameObject;
+import gameobjects.Ball;
+import utils.TrackedGameObject;
 
 /**
  * This class handles the strategy that changes the camera to focus

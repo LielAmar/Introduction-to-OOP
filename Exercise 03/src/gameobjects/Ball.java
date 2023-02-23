@@ -1,11 +1,11 @@
-package src.gameobjects;
+package gameobjects;
 
 import danogl.GameObject;
 import danogl.collisions.Collision;
 import danogl.gui.Sound;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import src.utils.TrackedGameObject;
+import utils.TrackedGameObject;
 
 /**
  * A class that represents the ball game object and handles its logic
