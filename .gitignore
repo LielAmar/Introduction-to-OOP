@@ -1,9 +1,0 @@
-*.jar
-*.exe
-*.txt
-*.zip
-*.tar
-*.rar
-*/.idea/
-*/out/
-*.class
